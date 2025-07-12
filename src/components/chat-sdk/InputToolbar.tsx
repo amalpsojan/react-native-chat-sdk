@@ -1,6 +1,9 @@
 import React, { useCallback, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import { KeyboardStickyView } from "react-native-keyboard-controller";
+import {
+  useReanimatedKeyboardAnimation
+} from "react-native-keyboard-controller";
+import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import { Message } from "./types";
 
 interface InputToolbarProps {
@@ -10,7 +13,7 @@ interface InputToolbarProps {
 
 /**
  * InputToolbar - Message input and send button
- * 
+ *
  * Handles text input, attachments, and sending messages
  */
 const InputToolbar: React.FC<InputToolbarProps> = ({
@@ -19,6 +22,13 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
 }) => {
   const [draft, setDraft] = useState("");
   const inputRef = React.useRef<TextInput>(null);
+  const { height } = useReanimatedKeyboardAnimation();
+
+  const animatedStyle = useAnimatedStyle(() => {
+    return {
+      transform: [{ translateY: height.value + (height.value > 0 ? 0 :30) }],
+    };
+  });
 
   const handleSend = useCallback(() => {
     const trimmed = draft.trim();
@@ -38,7 +48,7 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
   }, []);
 
   return (
-    <KeyboardStickyView style={styles.container}>
+    <Animated.View style={[styles.container, animatedStyle]}>
       <View style={styles.inputBar} onTouchStart={handleContainerPress}>
         <TextInput
           ref={inputRef}
@@ -52,8 +62,8 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
           blurOnSubmit={false}
           onSubmitEditing={handleSend}
         />
-        <Pressable 
-          style={styles.sendButton} 
+        <Pressable
+          style={styles.sendButton}
           onPress={handleSend}
           disabled={!draft.trim()}
         >
@@ -67,7 +77,7 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
           </Text>
         </Pressable>
       </View>
-    </KeyboardStickyView>
+    </Animated.View>
   );
 };
 

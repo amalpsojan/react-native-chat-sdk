@@ -23,12 +23,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
 
   return (
     <View style={styles.container}>
-      <MessagesList
-        ref={listRef}
-        messages={messages}
-        currentUserId={currentUserId}
-        onLoadEarlier={onLoadEarlier}
-      />
+      <View style={styles.messagesContainer}>
+        <MessagesList
+          ref={listRef}
+          messages={messages}
+          currentUserId={currentUserId}
+          onLoadEarlier={onLoadEarlier}
+        />
+      </View>
       <InputToolbar
         onSendMessage={onSendMessage}
         onScrollToBottom={scrollToBottom}
@@ -41,6 +43,9 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     backgroundColor: '#F2F2F7',
+  },
+  messagesContainer: {
+    flex: 1,
   },
 });
 
