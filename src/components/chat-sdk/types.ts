@@ -15,12 +15,17 @@ export enum MessageType {
   SYSTEM = 'system',
 }
 
+// Text message content
+export interface TextContent {
+  text: string;
+}
+
 export interface Message {
   id: string;
   from: string;
   isReceived: boolean;
   type: MessageType;
-  content: any; // For now – will be strong-typed later
+  content: TextContent | any; // Will add more specific types as we implement them
   status?: 'queued' | 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 }
 

@@ -1,29 +1,27 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { Message, MessageType } from './types';
+import { StyleSheet, View } from 'react-native';
+import Message from './Message';
+import { Message as TMessage } from './types';
 
 interface MessageBubbleProps {
-  message: Message;
-  isMe: boolean;
+  message: TMessage;
 }
 
 /**
- * MessageBubble - Renders a single chat message bubble
+ * MessageBubble - Renders a message bubble with appropriate styling
  * 
- * Handles different message types and styles them according to sender
+ * Handles bubble styling based on sender (left/right alignment)
  */
-const MessageBubble = memo(({ message, isMe }: MessageBubbleProps) => {
-  let display = '';
-  if (message.type === MessageType.TEXT) {
-    display = message.content;
-  } else {
-    display = '[Unsupported message type]';
-  }
-
+const MessageBubble = memo(({ message }: MessageBubbleProps) => {
   return (
     <View style={styles.messageRow}>
-      <View style={[styles.bubble, isMe ? styles.bubbleRight : styles.bubbleLeft]}>
-        <Text style={styles.messageText}>{display}</Text>
+      <View 
+        style={[
+          styles.bubble, 
+          message.isReceived ? styles.bubbleLeft : styles.bubbleRight
+        ]}
+      >
+        <Message message={message} />
       </View>
     </View>
   );
@@ -51,9 +49,6 @@ const styles = StyleSheet.create({
     backgroundColor: '#DCF8C6',
     alignSelf: 'flex-end',
     marginLeft: 'auto',
-  },
-  messageText: { 
-    fontSize: 16 
   },
 });
 

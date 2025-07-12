@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
-import { Message, MessageType } from "./types";
+import { Message, MessageType, TextContent } from "./types";
 
 interface InputToolbarProps {
   onSendMessage: (message: Partial<Message>) => void;
@@ -32,7 +32,10 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
     const trimmed = draft.trim();
     if (!trimmed) return;
 
-    onSendMessage({ content: trimmed, type: MessageType.TEXT });
+    onSendMessage({ 
+      type: MessageType.TEXT, 
+      content: { text: trimmed } as TextContent 
+    });
     setDraft("");
     
     // Dismiss keyboard

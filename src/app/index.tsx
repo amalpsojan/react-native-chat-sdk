@@ -1,5 +1,5 @@
 import { ChatSDK } from "@/components";
-import { Message, MessageType } from "@/components/chat-sdk/types";
+import { Message, MessageType, TextContent } from "@/components/chat-sdk/types";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -15,9 +15,11 @@ export default function Chat() {
         from: isFromMe ? "user-1" : "user-2",
         isReceived: !isFromMe,
         type: MessageType.TEXT,
-        content: isFromMe 
-          ? `Message from me #${i}: This is a sample message to test performance.` 
-          : `Reply from user #${i}: Thanks for your message!`,
+        content: {
+          text: isFromMe 
+            ? `Message from me #${i}: This is a sample message to test performance.` 
+            : `Reply from user #${i}: Thanks for your message!`
+        } as TextContent,
         status: "sent",
       });
     }
@@ -31,8 +33,8 @@ export default function Chat() {
       id: Date.now().toString(),
       from: currentUserId,
       isReceived: false,
-      type: partial.type || "text",
-      content: partial.content ?? "",
+      type: partial.type || MessageType.TEXT,
+      content: partial.content || { text: "" },
       status: "sent",
     };
     // Add new message at the end (FlatList will reverse it with inverted prop)

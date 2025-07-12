@@ -21,8 +21,7 @@ const MessagesList = React.forwardRef<FlatList, MessagesListProps>(
 
     const renderItem = useCallback(
       ({ item }: { item: Message }) => {
-        const isMe = item.from === currentUserId;
-        return <MessageBubble message={item} isMe={isMe} />;
+        return <MessageBubble message={item} />;
       },
       [currentUserId]
     );
