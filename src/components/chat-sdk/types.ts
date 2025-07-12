@@ -26,6 +26,8 @@ export interface Message {
   isReceived: boolean;
   type: MessageType;
   content: TextContent | any; // Will add more specific types as we implement them
+  createdAt: number; // Timestamp in milliseconds when message was created
+  editedAt?: number; // Timestamp in milliseconds when message was last edited
   status?: 'queued' | 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
 }
 

@@ -218,7 +218,6 @@ export interface Message {
 
   metadata?: Record<string, unknown>;
 
-  timestamp:  number;
   createdAt:  number;
   editedAt?:  number;
   expiresAt?: number;
