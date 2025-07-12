@@ -1,8 +1,7 @@
 import React, { useCallback, useState } from "react";
-import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
+import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { Message } from "./types";
 
 interface InputToolbarProps {
@@ -12,7 +11,7 @@ interface InputToolbarProps {
 
 /**
  * InputToolbar - Message input and send button
- *
+ * 
  * Handles text input, attachments, and sending messages
  */
 const InputToolbar: React.FC<InputToolbarProps> = ({
@@ -22,7 +21,6 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
   const [draft, setDraft] = useState("");
   const inputRef = React.useRef<TextInput>(null);
   const { height } = useReanimatedKeyboardAnimation();
-  const safeAreaInsets = useSafeAreaInsets();
 
   const animatedStyle = useAnimatedStyle(() => {
     return {
@@ -36,6 +34,9 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
 
     onSendMessage({ content: trimmed, type: "text" });
     setDraft("");
+    
+    // Dismiss keyboard
+    Keyboard.dismiss();
 
     // Scroll to bottom after sending
     if (onScrollToBottom) {
@@ -53,17 +54,16 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
       <View style={styles.inputBar}>
         <TextInput
           ref={inputRef}
-          style={[styles.input, { maxHeight: 100 }]}
+          style={[styles.input]}
           value={draft}
           onChangeText={setDraft}
           placeholder="Message..."
           placeholderTextColor="#888"
           multiline={true}
-          returnKeyType="send"
-          onSubmitEditing={handleSend}
+          returnKeyType="default"
         />
-        <Pressable
-          style={styles.sendButton}
+        <Pressable 
+          style={styles.sendButton} 
           onPress={handleSend}
           disabled={!draft.trim()}
         >
@@ -103,6 +103,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#f8f8f8",
     borderRadius: 18,
     minHeight: 40,
+    maxHeight: 100
   },
   sendButton: {
     marginLeft: 8,
