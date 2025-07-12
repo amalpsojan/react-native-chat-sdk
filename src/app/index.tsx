@@ -1,7 +1,7 @@
 import { ChatSDK } from "@/components";
 import { Message } from "@/components/chat-sdk/types";
 import React, { useState } from "react";
-import { SafeAreaView } from "react-native";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function Chat() {
   const currentUserId = "user-1";
