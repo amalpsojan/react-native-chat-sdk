@@ -1,18 +1,19 @@
 // Chat SDK minimal type definitions – version 0.1
 
-export type MessageType =
-  | 'text'
-  | 'image'
-  | 'video'
-  | 'audio'
-  | 'document'
-  | 'location'
-  | 'contact'
-  | 'interactive'
-  | 'template'
-  | 'sticker'
-  | 'order'
-  | 'system';
+export enum MessageType {
+  TEXT = 'text',
+  IMAGE = 'image',
+  VIDEO = 'video',
+  AUDIO = 'audio',
+  DOCUMENT = 'document',
+  LOCATION = 'location',
+  CONTACT = 'contact',
+  INTERACTIVE = 'interactive',
+  TEMPLATE = 'template',
+  STICKER = 'sticker',
+  ORDER = 'order',
+  SYSTEM = 'system',
+}
 
 export interface Message {
   id: string;

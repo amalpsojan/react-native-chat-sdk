@@ -8,15 +8,15 @@
 
 | ID | Description | Status |
 |----|-------------|--------|
-| task_chatwindow_ui | Build core **ChatWindow** UI container | ⏳ pending |
-| task_message_list | Implement virtualized **Message List** component | ⏳ pending |
-| task_message_input | Create **Message Input** bar with text & attachment support | ⏳ pending |
+| task_chatwindow_ui | Build core **ChatWindow** UI container | ✅ completed |
+| task_message_list | Implement virtualized **Message List** component | ✅ completed |
+| task_message_input | Create **Message Input** bar with text & attachment support | ✅ completed |
 | task_context_menu | Add **Contextual Menu** actions (reply, copy, delete, …) | ⏳ pending |
 | task_custom_renderers | Provide **custom renderers** for every `MessageType` | ⏳ pending |
-| task_theming | Implement **theming system** (colors, fonts, spacing) | ⏳ pending |
+| task_theming | Implement **theming system** (colors, fonts, spacing) | 🔄 in-progress |
 | task_accessibility | Add **accessibility & localization** features | ⏳ pending |
-| task_performance | Performance optimisations (memoisation & virtualisation) | ⏳ pending |
-| task_examples | Create **example integration** & storybook demos | ⏳ pending |
+| task_performance | Performance optimisations (memoisation & virtualisation) | ✅ completed |
+| task_examples | Create **example integration** & storybook demos | 🔄 in-progress |
 | task_testing | Setup **testing (unit & e2e)** and linter configs | ⏳ pending |
 
 > Status Legend: ✅ completed · 🔄 in-progress · ⏳ pending · 🚫 blocked
@@ -43,6 +43,7 @@
 | `react-native-reanimated@^3` | Expo SDK 53 | Some animations flicker on Android when combined with `expo-router` | Use `useAnimatedReaction` + `React.memo` wrapper; track upstream issue.#
 | `react-native-gesture-handler@~2.24` | Expo SDK 53 | Needs `<GestureHandlerRootView>` at root to avoid "Unable to find root view" error | Already wrapped in `_layout.tsx`; document for consumers. |
 | `react-native-web` | ~0.20 | `Reanimated` web support still experimental | Disable heavy animations when `Platform.OS === 'web'`. |
+| `react-native-keyboard-controller` | ^1.17.5 | Transparent space between input and keyboard | Use Animated.View with translateY transformation based on keyboard height |
 
 > Keep this list up-to-date as you discover new quirks.
 
@@ -50,6 +51,23 @@
 
 ## 🚧 Progress Log
 
-*Initial file created – all tasks pending.*
+### 2023-11-01
+- Created initial project structure and documentation
+- Set up basic component architecture
 
-Update this section with daily/weekly notes on what moved forward, what’s blocked, and next steps. 
+### 2023-11-15
+- Implemented core ChatWindow container component
+- Added MessagesList with FlatList virtualization
+- Created basic MessageBubble component for text messages
+
+### 2023-11-30
+- Implemented InputToolbar with text input and send button
+- Added keyboard handling with react-native-keyboard-controller
+- Fixed issue with keyboard covering input field using useReanimatedKeyboardAnimation
+- Implemented auto-dismissal of keyboard after sending message
+
+### Current Status
+- Core chat UI components are functional
+- Basic message sending and display working
+- Keyboard handling optimized with animations
+- Need to implement: contextual menu, custom renderers, accessibility features, and testing 

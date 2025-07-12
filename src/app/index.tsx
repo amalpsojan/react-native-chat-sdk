@@ -1,5 +1,5 @@
 import { ChatSDK } from "@/components";
-import { Message } from "@/components/chat-sdk/types";
+import { Message, MessageType } from "@/components/chat-sdk/types";
 import React, { useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 
@@ -14,7 +14,7 @@ export default function Chat() {
         id: `msg-${i}`,
         from: isFromMe ? "user-1" : "user-2",
         isReceived: !isFromMe,
-        type: "text",
+        type: MessageType.TEXT,
         content: isFromMe 
           ? `Message from me #${i}: This is a sample message to test performance.` 
           : `Reply from user #${i}: Thanks for your message!`,

@@ -1,6 +1,6 @@
 import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Message } from './types';
+import { Message, MessageType } from './types';
 
 interface MessageBubbleProps {
   message: Message;
@@ -14,7 +14,7 @@ interface MessageBubbleProps {
  */
 const MessageBubble = memo(({ message, isMe }: MessageBubbleProps) => {
   let display = '';
-  if (typeof message.content === 'string') {
+  if (message.type === MessageType.TEXT) {
     display = message.content;
   } else {
     display = '[Unsupported message type]';

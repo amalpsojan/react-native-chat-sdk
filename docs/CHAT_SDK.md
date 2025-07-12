@@ -1,7 +1,7 @@
 # 📦 Chat SDK – React Native (Expo friendly)
 
 A **re-usable, platform-agnostic Chat Window SDK** focused purely on UI for 1-to-1 messaging.  
-Backend, storage, and real-time updates are entirely the host app’s responsibility, so you stay in control of your data flow.
+Backend, storage, and real-time updates are entirely the host app's responsibility, so you stay in control of your data flow.
 
 ---
 
@@ -15,7 +15,8 @@ Backend, storage, and real-time updates are entirely the host app’s responsibi
 7. Customisation & Theming
 8. Accessibility & Localisation
 9. Performance Notes
-10. Contributing
+10. Keyboard Handling
+11. Contributing
 
 ---
 
@@ -34,6 +35,8 @@ Backend, storage, and real-time updates are entirely the host app’s responsibi
 • Attachments (images, files, media)  
 • Reply / Edit modes with cancel  
 • Typing indicator display
+• Auto-expanding input for long messages
+• Keyboard-aware input that stays visible
 
 ### ✅ User Interactions
 • Long-press → contextual menu: **Reply · Copy · Forward · Delete · Edit · Download**  
@@ -100,7 +103,7 @@ export interface ChatWindowProps {
 ## 3. 🧱 Message Object
 
 ```ts
-// Message “kind” alias
+// Message "kind" alias
 export type MessageType =
   | 'text'
   | 'image'
@@ -310,13 +313,51 @@ export default function ChatScreen() {
 ---
 
 ## 9. ⚡ Performance Notes
-• Large lists virtualised via `RecyclerListView` by default.  
+• Large lists virtualised via `FlatList` by default.  
 • `onLoadEarlier()` paginates older messages.  
 • Image/video thumbnails are memoised.  
+• Components use React.memo to prevent unnecessary re-renders.
 
 ---
 
-## 10. 🤝 Contributing
+## 10. ⌨️ Keyboard Handling
+The Chat SDK includes sophisticated keyboard handling to ensure a smooth user experience:
+
+• **Auto-adjusting input**: Input toolbar automatically moves with the keyboard
+• **Animated transitions**: Smooth animations when keyboard appears/disappears
+• **Auto-expanding input**: Text input grows as user types longer messages (up to a maximum height)
+• **Auto-dismissal**: Keyboard automatically dismisses after sending a message
+• **Keyboard gap elimination**: Uses react-native-reanimated and react-native-keyboard-controller to eliminate gaps between input and keyboard
+
+Implementation details:
+```tsx
+// Keyboard-aware input implementation
+const InputToolbar = () => {
+  // Get keyboard height using react-native-keyboard-controller
+  const { height } = useReanimatedKeyboardAnimation();
+  
+  // Create animated style that moves with keyboard
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ translateY: height.value + (height.value > 0 ? 0 : 30) }],
+  }));
+  
+  // Auto-dismiss keyboard when sending messages
+  const handleSend = () => {
+    // Send message logic
+    Keyboard.dismiss();
+  };
+  
+  return (
+    <Animated.View style={[styles.container, animatedStyle]}>
+      {/* Input components */}
+    </Animated.View>
+  );
+};
+```
+
+---
+
+## 11. 🤝 Contributing
 1. `yarn` – install deps  
 2. `yarn dev` – run example app  
 3. Lint & test before PRs: `yarn lint && yarn test`  
