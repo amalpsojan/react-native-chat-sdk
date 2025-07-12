@@ -1,0 +1,117 @@
+import React, { useCallback, useState } from 'react';
+import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { KeyboardStickyView } from 'react-native-keyboard-controller';
+import { Message } from './types';
+
+interface InputToolbarProps {
+  onSendMessage: (message: Partial<Message>) => void;
+  onScrollToBottom?: () => void;
+}
+
+/**
+ * InputToolbar - Message input and send button
+ * 
+ * Handles text input, attachments, and sending messages
+ * Uses KeyboardStickyView to stay above keyboard with proper spacing
+ */
+const InputToolbar: React.FC<InputToolbarProps> = ({ 
+  onSendMessage, 
+  onScrollToBottom 
+}) => {
+  const [draft, setDraft] = useState('');
+  const inputRef = React.useRef<TextInput>(null);
+
+  const handleSend = useCallback(() => {
+    const trimmed = draft.trim();
+    if (!trimmed) return;
+    
+    onSendMessage({ content: trimmed, type: 'text' });
+    setDraft('');
+    
+    // Scroll to bottom after sending
+    if (onScrollToBottom) {
+      setTimeout(onScrollToBottom, 50);
+    }
+  }, [draft, onSendMessage, onScrollToBottom]);
+
+  const handleContainerPress = useCallback(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  return (
+    <KeyboardStickyView style={styles.stickyView}>
+      <View 
+        style={styles.inputBar}
+        onTouchStart={handleContainerPress}
+      >
+        <TextInput
+          ref={inputRef}
+          style={[styles.input, { maxHeight: 100 }]}
+          value={draft}
+          onChangeText={setDraft}
+          placeholder="Message..."
+          placeholderTextColor="#888"
+          multiline={true}
+          numberOfLines={1}
+          returnKeyType="send"
+          blurOnSubmit={false}
+          onSubmitEditing={handleSend}
+        />
+        <Pressable 
+          style={styles.sendButton} 
+          onPress={handleSend}
+          disabled={!draft.trim()}
+        >
+          <Text style={[
+            styles.sendButtonText,
+            !draft.trim() && styles.sendButtonDisabled
+          ]}>
+            Send
+          </Text>
+        </Pressable>
+      </View>
+    </KeyboardStickyView>
+  );
+};
+
+const styles = StyleSheet.create({
+  stickyView: {
+    width: '100%',
+    backgroundColor: '#fff',
+    borderTopWidth: StyleSheet.hairlineWidth,
+    borderColor: '#ccc',
+  },
+  inputBar: {
+    flexDirection: 'row',
+    padding: 10,
+    paddingBottom: 14, // Extra padding at the bottom for more space
+    alignItems: 'center',
+    backgroundColor: '#fff',
+  },
+  input: {
+    flex: 1,
+    padding: 10,
+    paddingTop: 10,
+    fontSize: 16,
+    backgroundColor: '#f8f8f8',
+    borderRadius: 18,
+    minHeight: 40,
+  },
+  sendButton: {
+    marginLeft: 8,
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    backgroundColor: '#007AFF',
+    borderRadius: 18,
+    alignSelf: 'flex-end',
+  },
+  sendButtonText: {
+    color: '#fff',
+    fontWeight: '600',
+  },
+  sendButtonDisabled: {
+    opacity: 0.5,
+  }
+});
+
+export default InputToolbar; 
