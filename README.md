@@ -1,51 +1,64 @@
-# Welcome to your Expo app 👋
+# React-Native Chat SDK  ⚡️
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+A reusable, **UI-only** chat window component for Expo/React‐Native apps. It handles message rendering, input, theming, and interactions while leaving networking, storage, and real-time updates to the host app.
 
-## Get started
+---
 
-1. Install dependencies
-
-   ```bash
-   npm install
-   ```
-
-2. Start the app
-
-   ```bash
-   npx expo start
-   ```
-
-In the output, you'll find options to open the app in a
-
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
-
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
-
-## Get a fresh project
-
-When you're ready, run:
+## 🚀 Quick Start
 
 ```bash
-npm run reset-project
+# 1. Clone the repo
+$ git clone git@github.com:amalpsojan/react-native-chat-sdk.git
+$ cd react-native-chat-sdk
+
+# 2. Install dependencies (Yarn or npm)
+$ yarn   # or: npm install
+
+# 3. Run on a device / simulator / web
+$ yarn start       # opens Expo Dev Tools
+# or shortcut commands
+$ yarn ios         # iOS simulator
+$ yarn android     # Android emulator
+$ yarn web         # React-Native Web
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+Expo will prompt you to open the project in:
+• the iOS Simulator (macOS only)  
+• an Android emulator  
+• or the **Expo Go** app on your physical device (scan the QR code)
 
-## Learn more
+---
 
-To learn more about developing your project with Expo, look at the following resources:
+## 📚 Documentation
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+Full SDK spec lives in [`docs/CHAT_SDK.md`](docs/CHAT_SDK.md).  
+Task tracking & rules live in [`docs/PROJECT_TASKS.md`](docs/PROJECT_TASKS.md).
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## 🛠️ Scripts
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
-# react-native-chat-sdk
+| Script        | Purpose                          |
+|---------------|----------------------------------|
+| `yarn start`  | Launch Expo dev server           |
+| `yarn ios`    | Open iOS simulator               |
+| `yarn android`| Open Android emulator            |
+| `yarn web`    | Run on web (React-Native Web)    |
+| `yarn lint`   | Run ESLint checks                |
+
+Tests will be added soon (`yarn test`).
+
+---
+
+## 🤝 Contributing
+
+1. **Docs-first**: update `docs/CHAT_SDK.md` before implementing code changes.  
+2. Create a feature branch (`git checkout -b feature/your-feature`).  
+3. Follow the rules in [`docs/PROJECT_TASKS.md`](docs/PROJECT_TASKS.md).  
+4. Submit a pull request with a clear description.
+
+---
+
+## 📄 License
+
+MIT © Amal P Sojan
