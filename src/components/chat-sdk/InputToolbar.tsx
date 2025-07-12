@@ -1,9 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { Pressable, StyleSheet, Text, TextInput, View } from "react-native";
-import {
-  KeyboardStickyView,
-  useReanimatedKeyboardAnimation,
-} from "react-native-keyboard-controller";
+import { KeyboardStickyView } from "react-native-keyboard-controller";
 import { Message } from "./types";
 
 interface InputToolbarProps {
@@ -13,9 +10,8 @@ interface InputToolbarProps {
 
 /**
  * InputToolbar - Message input and send button
- *
+ * 
  * Handles text input, attachments, and sending messages
- * Uses KeyboardStickyView to stay above keyboard with proper spacing
  */
 const InputToolbar: React.FC<InputToolbarProps> = ({
   onSendMessage,
@@ -42,7 +38,7 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
   }, []);
 
   return (
-    <KeyboardStickyView style={styles.stickyView}>
+    <KeyboardStickyView style={styles.container}>
       <View style={styles.inputBar} onTouchStart={handleContainerPress}>
         <TextInput
           ref={inputRef}
@@ -52,13 +48,12 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
           placeholder="Message..."
           placeholderTextColor="#888"
           multiline={true}
-          numberOfLines={1}
           returnKeyType="send"
           blurOnSubmit={false}
           onSubmitEditing={handleSend}
         />
-        <Pressable
-          style={styles.sendButton}
+        <Pressable 
+          style={styles.sendButton} 
           onPress={handleSend}
           disabled={!draft.trim()}
         >
@@ -77,7 +72,7 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
 };
 
 const styles = StyleSheet.create({
-  stickyView: {
+  container: {
     width: "100%",
     backgroundColor: "#fff",
     borderTopWidth: StyleSheet.hairlineWidth,
