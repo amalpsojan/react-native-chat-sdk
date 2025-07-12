@@ -1,0 +1,54 @@
+---
+title: Install Dependencies (Expo + Dev Rules)
+description: Standardize how dependencies and dev dependencies are installed in this project.
+tags: [expo, installation, dependencies, dev]
+---
+
+## 📦 Runtime Dependencies
+
+✅ **Use this command:**
+
+```bash
+npx expo install [package-name]
+```
+
+❌ **Do NOT use:**
+
+```bash
+npm install [package-name]
+yarn add [package-name]
+```
+
+📌 **Reason:**  
+Using `npx expo install` ensures the installed package versions are compatible with the current Expo SDK, preventing version mismatches and runtime errors.
+
+---
+
+## 🛠️ Development Dependencies
+
+✅ **Use this command:**
+
+```bash
+yarn add [package-name] -D
+```
+
+❌ **Do NOT use:**
+
+```bash
+npx expo install [package-name]
+npm install --save-dev [package-name]
+```
+
+📌 **Reason:**  
+`expo install` is not intended for development tools. Use `yarn` to add tools like linters, test libraries, etc., as dev dependencies.
+
+---
+
+## 🧠 Summary
+
+| Type         | ✅ Correct Command               | ❌ Wrong Commands                                          |
+|--------------|----------------------------------|------------------------------------------------------------|
+| Runtime      | `npx expo install`              | `npm install`, `yarn add`                                  |
+| Development  | `yarn add [package] -D`         | `npx expo install`, `npm install --save-dev`, `yarn add -D` |
+
+---
