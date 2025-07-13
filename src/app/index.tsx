@@ -1,9 +1,11 @@
 import { ChatSDK } from "@/components";
 import { Message, MessageType, TextContent } from "@/components/chat-sdk/types";
 import React, { useState } from "react";
-import { SafeAreaView } from "react-native-safe-area-context";
+import { View } from "react-native";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function Chat() {
+  const insets = useSafeAreaInsets();
   const currentUserId = "user-1";
   
   // Generate sample messages
@@ -175,12 +177,12 @@ export default function Chat() {
   };
 
   return (
-    <SafeAreaView style={{ flex: 1 }}>
+    <View style={{ flex: 1, marginBottom: insets.bottom }}>
       <ChatSDK
         messages={messages}
         currentUserId={currentUserId}
         onSendMessage={handleSend}
       />
-    </SafeAreaView>
+    </View>
   );
 }
