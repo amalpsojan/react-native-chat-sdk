@@ -1,7 +1,7 @@
 import React, { memo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import Message from './Message';
-import { Message as TMessage } from './types';
+import { Message as TMessage } from '../../types';
 
 interface MessageBubbleProps {
   message: TMessage;

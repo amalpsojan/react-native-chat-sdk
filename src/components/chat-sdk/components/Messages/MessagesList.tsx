@@ -1,8 +1,8 @@
 import React, { useCallback, useMemo } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
-import DateSeparator from './DateSeparator';
+import DateSeparator from '../DateSeparator';
 import MessageBubble from './MessageBubble';
-import { Message } from './types';
+import { Message } from '../../types';
 
 interface MessagesListProps {
   messages: Message[];

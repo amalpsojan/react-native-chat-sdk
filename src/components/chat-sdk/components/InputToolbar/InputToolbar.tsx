@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from "react-native";
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
-import { Message, MessageType, TextContent } from "./types";
+import { Message, MessageType, TextContent } from "../../types";
 
 interface InputToolbarProps {
   onSendMessage: (message: Partial<Message>) => void;

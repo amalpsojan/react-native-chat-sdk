@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { TextContent } from './types';
+import { TextContent } from '../../types';
 
 interface MessageTextProps {
   content: TextContent;

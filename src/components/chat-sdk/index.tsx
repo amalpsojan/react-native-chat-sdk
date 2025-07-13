@@ -1,7 +1,7 @@
 import React, { useCallback, useRef } from 'react';
 import { FlatList, StyleSheet, View } from 'react-native';
-import InputToolbar from './InputToolbar';
-import MessagesList from './MessagesList';
+import InputToolbar from './components/InputToolbar/InputToolbar';
+import MessagesList from './components/Messages/MessagesList';
 import { ChatWindowProps } from './types';
 
 /**
