@@ -2,24 +2,53 @@ import { Message, MessageType } from "@/components/chat-sdk/types";
 
 export const messages: Message[] = [
   {
+    id: "15",
+    content: { text: "Perfect! See you there! " },
+    createdAt: new Date(),
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.TEXT,
+    status: "read",
+  },
+  {
+    id: "14",
+    content: { text: "I'll bring the popcorn " },
+    createdAt: new Date(),
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.TEXT,
+    status: "read",
+  },
+  {
+    id: "13",
+    content: { text: "Great idea!" },
+    createdAt: new Date(),
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.TEXT,
+    status: "read",
+  },
+  {
     id: "12",
     content: { text: "Time to go to the movies!" },
     createdAt: new Date(),
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
+    status: "read",
   },
   {
     id: "11",
-    content: { text: "🎉" },
+    content: { text: "😀" },
     createdAt: new Date(),
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
+    status: "read",
   },
   {
     id: "10",
-    content: { text: "😀" },
+    content: { text: "😁" },
     createdAt: new Date(),
     from: "user-2",
     isReceived: true,
@@ -40,6 +69,7 @@ export const messages: Message[] = [
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
+    status: "delivered",
   },
   {
     id: "7",
@@ -64,6 +94,7 @@ export const messages: Message[] = [
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
+    status: "sent",
   },
   {
     id: "4",
@@ -80,6 +111,7 @@ export const messages: Message[] = [
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
+    status: "sent",
   },
   {
     id: "2",
@@ -96,5 +128,6 @@ export const messages: Message[] = [
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
+    status: "sent",
   },
 ]

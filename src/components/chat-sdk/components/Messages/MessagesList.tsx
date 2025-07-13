@@ -26,13 +26,22 @@ const isSameDay = (date1: Date, date2: Date) => {
 const MessagesList = React.forwardRef<FlatList, MessagesListProps>(
   ({ messages, currentUserId, onLoadEarlier }, ref) => {
 
-
-
     const renderItem = useCallback(
-      ({ item }: { item: Message }) => {
-       return <MessageBubble message={item} />
+      ({ item, index }: { item: Message; index: number }) => {
+        // Get adjacent messages for grouping logic
+        // Note: Since the list is inverted, we need to adjust the indices
+        const prevMessage = index < messages.length - 1 ? messages[index + 1] : null;
+        const nextMessage = index > 0 ? messages[index - 1] : null;
+        
+        return (
+          <MessageBubble 
+            message={item} 
+            prevMessage={prevMessage}
+            nextMessage={nextMessage}
+          />
+        );
       },
-      [currentUserId]
+      [messages, currentUserId]
     );
 
     const keyExtractor = useCallback((item: Message) => item.id, []);
