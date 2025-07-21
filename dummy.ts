@@ -145,4 +145,22 @@ export const messages: Message[] = [
     type: MessageType.TEXT,
     status: "sent",
   },
+  {
+    id: "110",
+    content: { text: "Hello, how are you?" },
+    createdAt: createDate(14, 10, 25), // 2 week ago 10:25 AM
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.TEXT,
+    status: "sent",
+  },
+  {
+    id: "120",
+    content: { text: "Hello, how are you?" },
+    createdAt: createDate(21, 10, 25), // 5 week ago 10:25 AM
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.TEXT,
+    status: "sent",
+  },
 ];
