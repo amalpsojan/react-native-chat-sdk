@@ -1,9 +1,9 @@
-import React, { useCallback } from 'react';
-import { FlatList, StyleSheet, Text, View } from 'react-native';
-import { Message } from '../../types';
-import { isSameDay } from '../../utils/utils';
-import DateSeparator from '../DateSeparator';
-import MessageBubble from './MessageBubble';
+import React, { useCallback } from "react";
+import { FlatList, StyleSheet, Text, View } from "react-native";
+import { Message } from "../../types";
+import { isSameDay } from "../../utils/utils";
+import DateSeparator from "../DateSeparator";
+import MessageBubble from "./MessageBubble";
 
 interface MessagesListProps {
   messages: Message[];
@@ -13,37 +13,39 @@ interface MessagesListProps {
 
 /**
  * MessagesList - Renders the scrollable list of chat messages
- * 
+ *
  * Handles message rendering, scrolling, and loading earlier messages
  */
 const MessagesList = React.forwardRef<FlatList, MessagesListProps>(
   ({ messages, currentUserId, onLoadEarlier }, ref) => {
-
     const renderItem = useCallback(
       ({ item, index }: { item: Message; index: number }) => {
         // Get adjacent messages for grouping logic
         // Note: Since the list is inverted, we need to adjust the indices
-        const prevMessage = index < messages.length - 1 ? messages[index + 1] : null;
+        const prevMessage =
+          index < messages.length - 1 ? messages[index + 1] : null;
         const nextMessage = index > 0 ? messages[index - 1] : null;
 
         // Show DateSeparator if this is the first message or a new day compared to previous message
-        const showDateSeparator =
-          !prevMessage || !isSameDay(item, prevMessage);
+        const showDateSeparator = !prevMessage || !isSameDay(item, prevMessage);
 
         return (
           <>
-            {showDateSeparator && (
-              <DateSeparator timestamp={
-                typeof item.createdAt === 'number'
-                  ? item.createdAt
-                  : new Date(item.createdAt).getTime()
-              } />
-            )}
-            <MessageBubble 
-              message={item} 
+            <MessageBubble
+              message={item}
               prevMessage={prevMessage}
               nextMessage={nextMessage}
             />
+
+            {showDateSeparator && (
+              <DateSeparator
+                timestamp={
+                  typeof item.createdAt === "number"
+                    ? item.createdAt
+                    : new Date(item.createdAt).getTime()
+                }
+              />
+            )}
           </>
         );
       },
@@ -87,14 +89,14 @@ const MessagesList = React.forwardRef<FlatList, MessagesListProps>(
 );
 
 const styles = StyleSheet.create({
-  listContent: { 
-    padding: 12 
+  listContent: {
+    padding: 12,
   },
   emptyList: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
-export default MessagesList; 
+export default MessagesList;
