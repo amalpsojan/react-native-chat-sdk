@@ -1,6 +1,8 @@
 import React, { useCallback } from 'react';
 import { FlatList, StyleSheet, Text, View } from 'react-native';
 import { Message } from '../../types';
+import { isSameDay } from '../../utils/utils';
+import DateSeparator from '../DateSeparator';
 import MessageBubble from './MessageBubble';
 
 interface MessagesListProps {
@@ -8,15 +10,6 @@ interface MessagesListProps {
   currentUserId: string;
   onLoadEarlier?: () => void;
 }
-
-// Helper to check if two dates are the same day
-const isSameDay = (date1: Date, date2: Date) => {
-  return (
-    date1.getDate() === date2.getDate() &&
-    date1.getMonth() === date2.getMonth() &&
-    date1.getFullYear() === date2.getFullYear()
-  );
-};
 
 /**
  * MessagesList - Renders the scrollable list of chat messages
@@ -32,13 +25,26 @@ const MessagesList = React.forwardRef<FlatList, MessagesListProps>(
         // Note: Since the list is inverted, we need to adjust the indices
         const prevMessage = index < messages.length - 1 ? messages[index + 1] : null;
         const nextMessage = index > 0 ? messages[index - 1] : null;
-        
+
+        // Show DateSeparator if this is the first message or a new day compared to previous message
+        const showDateSeparator =
+          !prevMessage || !isSameDay(item, prevMessage);
+
         return (
-          <MessageBubble 
-            message={item} 
-            prevMessage={prevMessage}
-            nextMessage={nextMessage}
-          />
+          <>
+            {showDateSeparator && (
+              <DateSeparator timestamp={
+                typeof item.createdAt === 'number'
+                  ? item.createdAt
+                  : new Date(item.createdAt).getTime()
+              } />
+            )}
+            <MessageBubble 
+              message={item} 
+              prevMessage={prevMessage}
+              nextMessage={nextMessage}
+            />
+          </>
         );
       },
       [messages, currentUserId]

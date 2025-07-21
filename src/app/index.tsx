@@ -22,8 +22,7 @@ export default function Chat() {
       createdAt: now,
       status: "sent",
     };
-    // Add new message at the end (FlatList will reverse it with inverted prop)
-    setMessages((prev) => [...prev, newMsg]);
+    setMessages((prev) => [newMsg, ...prev]);
   };
 
   return (
