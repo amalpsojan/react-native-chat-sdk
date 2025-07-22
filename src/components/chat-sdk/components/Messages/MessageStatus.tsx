@@ -1,31 +1,38 @@
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import React from 'react';
-import { StyleProp, Text, TextStyle } from 'react-native';
+import { StyleProp, StyleSheet, TextStyle, View } from 'react-native';
+import { Message as TMessage } from '../../types';
 
 interface MessageStatusProps {
-  status?: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
+  status?: TMessage['status'];
   style?: StyleProp<TextStyle>;
 }
 
-const getStatusContent = (status?: string) => {
-  switch (status) {
-    case 'pending':
-      return { icon: '🕒', color: undefined };
-    case 'sent':
-      return { icon: '✓', color: undefined };
-    case 'delivered':
-      return { icon: '✓✓', color: undefined };
-    case 'read':
-      return { icon: '✓✓', color: '#2196F3' };
-    case 'failed':
-      return { icon: '!', color: 'red' };
-    default:
-      return { icon: '', color: undefined };
-  }
+const MessageStatus: React.FC<MessageStatusProps> = ({ status, style }) => {
+  if (status === 'pending') return <MaterialCommunityIcons name="clock-outline" size={16} color="#999" style={[styles.statusText, style]} />;
+  if (status === 'failed') return <MaterialCommunityIcons name="alert-circle-outline" size={16} color="red" style={[styles.statusText, style]} />;
+  if (status === 'sent') return <MaterialCommunityIcons name="check" size={16} color="#999" style={[styles.statusText, style]} />;
+  if (status === 'delivered') return (
+    <View style={styles.iconRow}>
+      <MaterialCommunityIcons name="check" size={16} color="#999" style={[styles.statusText, style, { marginRight: -4 }]} />
+      <MaterialCommunityIcons name="check" size={16} color="#999" style={[styles.statusText, style]} />
+    </View>
+  );
+  if (status === 'read') return (
+    <View style={styles.iconRow}>
+      <MaterialCommunityIcons name="check" size={16} color="#2196F3" style={[styles.statusText, style, { marginRight: -4 }]} />
+      <MaterialCommunityIcons name="check" size={16} color="#2196F3" style={[styles.statusText, style]} />
+    </View>
+  );
+  return null;
 };
 
-const MessageStatus: React.FC<MessageStatusProps> = ({ status, style }) => {
-  const { icon, color } = getStatusContent(status);
-  return <Text style={[style, color ? { color } : null]}>{icon}</Text>;
-};
+const styles = StyleSheet.create({
+  statusText: {},
+  iconRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+});
 
 export default MessageStatus; 
