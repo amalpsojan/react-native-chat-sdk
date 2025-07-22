@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import React, { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { Message as TMessage } from '../../types';
 import Message from './Message';
@@ -50,6 +50,15 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubble
 
   const bubbleBaseStyle = message.isReceived ? styles.bubbleLeft : styles.bubbleRight;
 
+  const createdAt = useMemo(() => {
+
+    if(isEdited && message.editedAt){
+      return typeof message.editedAt === 'number' ? message.editedAt : new Date(message.editedAt).getTime();
+    }
+
+    return typeof message.createdAt === 'number' ? message.createdAt : new Date(message.createdAt).getTime();
+  }, [message.createdAt, message.editedAt, isEdited]);
+
   return (
     <View style={[
       styles.messageRow,
@@ -63,7 +72,7 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubble
         <Message message={message} />
         <MetadataContainer
           isEdited={!!isEdited}
-          createdAt={typeof message.createdAt === 'number' ? message.createdAt : new Date(message.createdAt).getTime()}
+          createdAt={createdAt}
           isReceived={!!message.isReceived}
           status={message.status}
         />
