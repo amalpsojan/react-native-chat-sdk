@@ -18,7 +18,7 @@ interface MessageBubbleProps {
  */
 const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubbleProps) => {
   // Check if message has been edited
-  const isEdited = message.editedAt && message.editedAt > message.createdAt;
+  const isEdited = !!message.editedAt;
 
   // Determine if this message should be grouped with adjacent messages
   const isFirstInGroup = !prevMessage || prevMessage.isReceived !== message.isReceived;

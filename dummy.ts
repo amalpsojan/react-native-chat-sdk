@@ -77,6 +77,7 @@ export const messages: Message[] = [
     id: "8",
     content: { text: "Yes, I would like to go to the movies!" },
     createdAt: createDate(1, 16, 30), // Yesterday 4:30 PM
+    editedAt: createDate(1, 16, 30),
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,

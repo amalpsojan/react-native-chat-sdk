@@ -1,14 +1,14 @@
 import React from 'react';
-import { Text, View } from 'react-native';
+import { Text, View ,StyleSheet} from 'react-native';
+import { Message as TMessage } from '../../types';
 import MessageStatus from './MessageStatus';
-import styles from './metadataContainerStyles';
 import Time from './Time';
 
 interface MetadataContainerProps {
   isEdited: boolean;
   createdAt: number;
   isReceived: boolean;
-  status?: string;
+  status?: TMessage['status'];
 }
 
 const MetadataContainer: React.FC<MetadataContainerProps> = ({
@@ -23,5 +23,29 @@ const MetadataContainer: React.FC<MetadataContainerProps> = ({
     {!isReceived && <MessageStatus status={status} style={styles.statusText} />}
   </View>
 );
+
+const styles = StyleSheet.create({
+  metadataContainer: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    alignItems: 'center',
+    marginTop: 2,
+  },
+  timeText: {
+    fontSize: 11,
+    color: '#999',
+    marginRight: 4,
+  },
+  statusText: {
+    fontSize: 11,
+    color: '#999',
+  },
+  editedText: {
+    fontSize: 11,
+    color: '#999',
+    fontStyle: 'italic',
+    marginRight: 4,
+  },
+}); 
 
 export default MetadataContainer; 
