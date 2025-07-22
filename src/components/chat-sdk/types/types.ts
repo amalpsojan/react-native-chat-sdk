@@ -28,7 +28,7 @@ export interface Message {
   content: TextContent | any; // Will add more specific types as we implement them
   createdAt: Date | string | number;
   editedAt?: Date | string | number;
-  status?: 'queued' | 'sending' | 'sent' | 'delivered' | 'read' | 'failed';
+  status?: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
 }
 
 export interface ChatWindowProps {

@@ -2,29 +2,30 @@ import React from 'react';
 import { StyleProp, Text, TextStyle } from 'react-native';
 
 interface MessageStatusProps {
-  status?: string;
+  status?: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
   style?: StyleProp<TextStyle>;
 }
 
-const getStatusText = (status?: string) => {
+const getStatusContent = (status?: string) => {
   switch (status) {
+    case 'pending':
+      return { icon: '🕒', color: undefined };
     case 'sent':
-      return '✓';
+      return { icon: '✓', color: undefined };
     case 'delivered':
-      return '✓✓';
+      return { icon: '✓✓', color: undefined };
     case 'read':
-      return '✓✓ ';
+      return { icon: '✓✓', color: '#2196F3' };
     case 'failed':
-      return '!';
-    case 'sending':
-      return '⋯';
+      return { icon: '!', color: 'red' };
     default:
-      return '';
+      return { icon: '', color: undefined };
   }
 };
 
 const MessageStatus: React.FC<MessageStatusProps> = ({ status, style }) => {
-  return <Text style={style}>{getStatusText(status)}</Text>;
+  const { icon, color } = getStatusContent(status);
+  return <Text style={[style, color ? { color } : null]}>{icon}</Text>;
 };
 
 export default MessageStatus; 

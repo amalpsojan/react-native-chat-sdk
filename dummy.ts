@@ -17,7 +17,7 @@ export const messages: Message[] = [
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
-    status: "read",
+    status: "pending",
   },
   {
     id: "14",
@@ -35,7 +35,7 @@ export const messages: Message[] = [
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
-    status: "read",
+    status: "delivered",
   },
   {
     id: "12",
@@ -44,7 +44,7 @@ export const messages: Message[] = [
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
-    status: "read",
+    status: "sent",
   },
   {
     id: "11",
@@ -53,7 +53,7 @@ export const messages: Message[] = [
     from: "user-1",
     isReceived: false,
     type: MessageType.TEXT,
-    status: "read",
+    status: "failed",
   },
   {
     id: "10",
