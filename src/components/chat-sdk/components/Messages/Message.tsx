@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import MessageText from './MessageText';
+import { MessageText } from './MessageTypes';
 import { MessageType, Message as TMessage } from '../../types';
 
 interface MessageProps {
