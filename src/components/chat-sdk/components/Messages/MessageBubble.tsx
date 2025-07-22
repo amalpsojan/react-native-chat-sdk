@@ -1,7 +1,8 @@
 import React, { memo } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Message as TMessage } from '../../types';
 import Message from './Message';
+import MetadataContainer from './MetadataContainer';
 
 interface MessageBubbleProps {
   message: TMessage;
@@ -16,30 +17,6 @@ interface MessageBubbleProps {
  * and groups consecutive messages from the same sender
  */
 const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubbleProps) => {
-  // Format time to display
-  const formatTime = () => {
-    const date = new Date(message.createdAt);
-    return `${date.getHours()}:${date.getMinutes().toString().padStart(2, '0')}`;
-  };
-
-  // Get status icon based on message status
-  const getStatusText = () => {
-    switch (message.status) {
-      case 'sent':
-        return '✓';
-      case 'delivered':
-        return '✓✓';
-      case 'read':
-        return '✓✓ '; // Blue checkmarks would be better but using space for now
-      case 'failed':
-        return '!';
-      case 'sending':
-        return '⋯';
-      default:
-        return '';
-    }
-  };
-
   // Check if message has been edited
   const isEdited = message.editedAt && message.editedAt > message.createdAt;
 
@@ -48,73 +25,48 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubble
   const isLastInGroup = !nextMessage || nextMessage.isReceived !== message.isReceived;
 
   // Calculate bubble styles based on grouping
-  const getBubbleStyles = () => {
-    const baseStyles = [
-      styles.bubble,
-      message.isReceived ? styles.bubbleLeft : styles.bubbleRight
-    ];
-
-    // Apply grouping-specific styles
-    if (message.isReceived) {
-      // Left side (received messages)
-      if (isFirstInGroup && isLastInGroup) {
-        // Single message in group
-        baseStyles.push(styles.bubbleLeftSingle);
-      } else if (isFirstInGroup) {
-        // First message in group
-        baseStyles.push(styles.bubbleLeftFirst);
-      } else if (isLastInGroup) {
-        // Last message in group
-        baseStyles.push(styles.bubbleLeftLast);
-      } else {
-        // Middle message in group
-        baseStyles.push(styles.bubbleLeftMiddle);
-      }
+  let bubbleGroupStyle;
+  if (message.isReceived) {
+    if (isFirstInGroup && isLastInGroup) {
+      bubbleGroupStyle = styles.bubbleLeftSingle;
+    } else if (isFirstInGroup) {
+      bubbleGroupStyle = styles.bubbleLeftFirst;
+    } else if (isLastInGroup) {
+      bubbleGroupStyle = styles.bubbleLeftLast;
     } else {
-      // Right side (sent messages)
-      if (isFirstInGroup && isLastInGroup) {
-        // Single message in group
-        baseStyles.push(styles.bubbleRightSingle);
-      } else if (isFirstInGroup) {
-        // First message in group
-        baseStyles.push(styles.bubbleRightFirst);
-      } else if (isLastInGroup) {
-        // Last message in group
-        baseStyles.push(styles.bubbleRightLast);
-      } else {
-        // Middle message in group
-        baseStyles.push(styles.bubbleRightMiddle);
-      }
+      bubbleGroupStyle = styles.bubbleLeftMiddle;
     }
-
-    return baseStyles;
-  };
-
-  // Calculate row margin based on grouping
-  const getRowStyles = () => {
-    const baseStyles = [styles.messageRow];
-    
-    if (isFirstInGroup) {
-      baseStyles.push(styles.messageRowFirst);
+  } else {
+    if (isFirstInGroup && isLastInGroup) {
+      bubbleGroupStyle = styles.bubbleRightSingle;
+    } else if (isFirstInGroup) {
+      bubbleGroupStyle = styles.bubbleRightFirst;
+    } else if (isLastInGroup) {
+      bubbleGroupStyle = styles.bubbleRightLast;
     } else {
-      baseStyles.push(styles.messageRowGrouped);
+      bubbleGroupStyle = styles.bubbleRightMiddle;
     }
+  }
 
-    return baseStyles;
-  };
+  const bubbleBaseStyle = message.isReceived ? styles.bubbleLeft : styles.bubbleRight;
 
   return (
-    <View style={getRowStyles()}>
-      <View style={getBubbleStyles()}>
+    <View style={[
+      styles.messageRow,
+      isFirstInGroup ? styles.messageRowFirst : styles.messageRowGrouped,
+    ]}>
+      <View style={[
+        styles.bubble,
+        bubbleBaseStyle,
+        bubbleGroupStyle,
+      ]}>
         <Message message={message} />
-        
-        <View style={styles.metadataContainer}>
-          {isEdited && <Text style={styles.editedText}>(edited)</Text>}
-          <Text style={styles.timeText}>{formatTime()}</Text>
-          {!message.isReceived && (
-            <Text style={styles.statusText}>{getStatusText()}</Text>
-          )}
-        </View>
+        <MetadataContainer
+          isEdited={!!isEdited}
+          createdAt={typeof message.createdAt === 'number' ? message.createdAt : new Date(message.createdAt).getTime()}
+          isReceived={!!message.isReceived}
+          status={message.status}
+        />
       </View>
     </View>
   );
@@ -191,27 +143,6 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 4,
     borderBottomLeftRadius: 18,
     borderBottomRightRadius: 18,
-  },
-  metadataContainer: {
-    flexDirection: 'row',
-    justifyContent: 'flex-end',
-    alignItems: 'center',
-    marginTop: 2,
-  },
-  timeText: {
-    fontSize: 11,
-    color: '#999',
-    marginRight: 4,
-  },
-  statusText: {
-    fontSize: 11,
-    color: '#999',
-  },
-  editedText: {
-    fontSize: 11,
-    color: '#999',
-    fontStyle: 'italic',
-    marginRight: 4,
   },
 });
 
