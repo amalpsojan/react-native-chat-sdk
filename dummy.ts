@@ -8,7 +8,38 @@ const createDate = (daysAgo: number, hours: number = 12, minutes: number = 0) =>
   return date.getTime();
 };
 
+// New messages are at the top of the list
 export const messages: Message[] = [
+  // Test ParsedText: URL
+  {
+    id: "201",
+    content: { text: "Check out https://www.example.com for more info!" },
+    createdAt: createDate(0, 16, 0),
+    from: "user-2",
+    isReceived: true,
+    type: MessageType.TEXT,
+    status: "sent",
+  },
+  // Test ParsedText: Email
+  {
+    id: "202",
+    content: { text: "Contact me at test.user@example.com if you have questions." },
+    createdAt: createDate(0, 16, 5),
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.TEXT,
+    status: "delivered",
+  },
+  // Test ParsedText: Phone number
+  {
+    id: "203",
+    content: { text: "My phone number is +1-555-123-4567. Call me!" },
+    createdAt: createDate(0, 16, 10),
+    from: "user-2",
+    isReceived: true,
+    type: MessageType.TEXT,
+    status: "read",
+  },
   // Today's messages
   {
     id: "15",
