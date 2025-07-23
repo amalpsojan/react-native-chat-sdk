@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { MessageText } from './MessageTypes';
 import { MessageType, Message as TMessage } from '../../types';
+import { MessageSystem, MessageText } from './MessageTypes';
 
 interface MessageProps {
   message: TMessage;
@@ -16,6 +16,8 @@ const Message = ({ message }: MessageProps) => {
   switch (message.type) {
     case MessageType.TEXT:
       return <MessageText content={message.content} />;
+    case MessageType.SYSTEM:
+      return <MessageSystem content={message.content} />;
     default:
       return <Text style={styles.messageText}>[Unsupported message type]</Text>;
   }

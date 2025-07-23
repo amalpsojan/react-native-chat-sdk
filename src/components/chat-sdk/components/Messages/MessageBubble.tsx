@@ -1,6 +1,6 @@
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
-import { Message as TMessage } from '../../types';
+import { MessageType, Message as TMessage } from '../../types';
 import Message from './Message';
 import MetadataContainer from './MetadataContainer';
 
@@ -58,6 +58,16 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubble
 
     return typeof message.createdAt === 'number' ? message.createdAt : new Date(message.createdAt).getTime();
   }, [message.createdAt, message.editedAt, isEdited]);
+
+  if (message.type === MessageType.SYSTEM) {
+    return (
+      <View style={styles.systemRow}>
+        <View style={styles.systemContainer}>
+          <Message message={message} />
+        </View>
+      </View>
+    );
+  }
 
   return (
     <View style={[
@@ -152,6 +162,18 @@ const styles = StyleSheet.create({
     borderTopRightRadius: 4,
     borderBottomLeftRadius: 18,
     borderBottomRightRadius: 18,
+  },
+  systemRow: {
+    width: '100%',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginVertical: 2,
+  },
+  systemContainer: {
+    maxWidth: '80%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
 

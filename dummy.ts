@@ -10,6 +10,36 @@ const createDate = (daysAgo: number, hours: number = 12, minutes: number = 0) =>
 
 // New messages are at the top of the list
 export const messages: Message[] = [
+  // System message: Info
+  {
+    id: "sys-1",
+    content: { system: { type: 'info', text: 'This is an informational system message.' } },
+    createdAt: createDate(0, 18, 0),
+    from: "system",
+    isReceived: true,
+    type: MessageType.SYSTEM,
+    status: "sent",
+  },
+  // System message: Reminder
+  {
+    id: "sys-2",
+    content: { system: { type: 'reminder', title: 'Meeting Reminder', description: 'Don\'t forget the team meeting at 3 PM.' } },
+    createdAt: createDate(0, 17, 45),
+    from: "system",
+    isReceived: true,
+    type: MessageType.SYSTEM,
+    status: "sent",
+  },
+  // System message: Mention
+  {
+    id: "sys-3",
+    content: { system: { type: 'mention', title: 'You were mentioned', description: 'Alice mentioned you in the chat.' } },
+    createdAt: createDate(0, 17, 30),
+    from: "system",
+    isReceived: true,
+    type: MessageType.SYSTEM,
+    status: "sent",
+  },
   // Test ParsedText: URL
   {
     id: "201",
