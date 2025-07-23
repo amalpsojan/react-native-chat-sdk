@@ -15,11 +15,17 @@ interface MessageTextProps {
 const MessageText = ({ content }: MessageTextProps) => {
   return (
     <ParsedText
-      style={styles.messageText}
+      style={markdownStyles.text}
       parse={[
-        { type: 'url', style: styles.url, onPress: (url) => {/* handle url */} },
-        { type: 'phone', style: styles.phone, onPress: (phone) => {/* handle phone */} },
-        { type: 'email', style: styles.email, onPress: (email) => {/* handle email */} },
+        { pattern: boldPattern, style: markdownStyles.bold },
+        { pattern: italicPattern, style: markdownStyles.italic },
+        { pattern: strikethroughPattern, style: markdownStyles.strikethrough },
+        { pattern: deeplinkUrlPattern, style: markdownStyles.url },
+        { type: 'url', style: markdownStyles.url },
+        { type: 'email', style: markdownStyles.email },
+        { pattern: phoneNumberPattern3, style: markdownStyles.phone },
+        { pattern: phoneNumberPattern2, style: markdownStyles.phone },
+        { pattern: phoneNumberPattern, style: markdownStyles.phone },
       ]}
       childrenProps={{ allowFontScaling: false }}
     >
@@ -28,20 +34,44 @@ const MessageText = ({ content }: MessageTextProps) => {
   );
 };
 
-const styles = StyleSheet.create({
-  messageText: { 
-    fontSize: 16 
+// WhatsApp-style markdown styles
+const markdownStyles = StyleSheet.create({
+  text: {
+    fontSize: 16,
+  },
+  bold: {
+    fontWeight: "700", 
+  },
+  italic: {
+    fontStyle: "italic",
+  },
+  strikethrough: {
+    textDecorationLine: "line-through",
   },
   url: {
-    color: '#0645AD',
-    textDecorationLine: 'underline',
+    color: "#53bdeb", // WhatsApp link blue
+    textDecorationLine: "none", // WhatsApp doesn't underline links
   },
   phone: {
-    color: '#1B873F',
+    color: "#53bdeb", // WhatsApp link blue
+    textDecorationLine: "none",
   },
   email: {
-    color: '#D44638',
+    color: "#53bdeb", // WhatsApp link blue
+    textDecorationLine: "none",
   },
 });
+
+// Patterns for WhatsApp-style markdown
+const boldPattern = /(?:\*)([^*<\n]+)(?:\*)/g;
+const italicPattern = /_(\S(.*?\S)?)\_/gm;
+const strikethroughPattern = /~((?:\[.*?\]|<.*?>(?:.*?<.*?>)?|`.*?`|.)*?)~/gm;
+const phoneNumberPattern =
+  /(\+\d{1,3}\s?)?(\d{12}|\d{5}\s?\d{6}|\d{5}\s?\d{5})|[\+]?[(]?\d{3}[)]?[-\s\.]?\d{3}[-\s\.]?\d{4,7}/;
+const phoneNumberPattern2 =
+  /(\+\d{1,3}\s?)?(\d{4}\s?\d{6}|\d{5}\s?\d{5}|\d{2}\s?\d{4}\s?\d{6})|[\+]?[(]?\d{3}[)]?[-\s\.]?\d{3}[-\s\.]?\d{4,7}/;
+// New pattern for phone numbers with dashes, spaces, or dots
+const phoneNumberPattern3 = /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?){2,3}\d{3,4}/g;
+const deeplinkUrlPattern = /whatsapp:\/\/\S+/g;
 
 export default MessageText; 
