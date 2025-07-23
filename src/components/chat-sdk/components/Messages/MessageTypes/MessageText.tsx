@@ -29,7 +29,7 @@ const MessageText = ({ content }: MessageTextProps) => {
       ]}
       childrenProps={{ allowFontScaling: false }}
     >
-      {content.text}
+      {content?.text}
     </ParsedText>
   );
 };
