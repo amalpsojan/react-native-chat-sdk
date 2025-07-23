@@ -1,5 +1,6 @@
+import { FlashList } from "@shopify/flash-list";
 import React, { useCallback } from "react";
-import { FlatList, StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View } from "react-native";
 import { Message } from "../../types";
 import { isSameDay } from "../../utils/utils";
 import DateSeparator from "../DateSeparator";
@@ -16,7 +17,7 @@ interface MessagesListProps {
  *
  * Handles message rendering, scrolling, and loading earlier messages
  */
-const MessagesList = React.forwardRef<FlatList, MessagesListProps>(
+const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
   ({ messages, currentUserId, onLoadEarlier }, ref) => {
     const renderItem = useCallback(
       ({ item, index }: { item: Message; index: number }) => {
@@ -69,17 +70,14 @@ const MessagesList = React.forwardRef<FlatList, MessagesListProps>(
     }
 
     return (
-      <FlatList
+      <FlashList
         ref={ref}
         data={messages}
         keyExtractor={keyExtractor}
         renderItem={renderItem}
         contentContainerStyle={styles.listContent}
         inverted={true}
-        removeClippedSubviews={true}
-        windowSize={10}
-        maxToRenderPerBatch={20}
-        initialNumToRender={20}
+        estimatedItemSize={60}
         onEndReached={handleEndReached}
         onEndReachedThreshold={0.2}
         ListFooterComponent={() => <View style={{ height: 20 }} />}
