@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
 import { MessageType, Message as TMessage } from '../../types';
-import { MessageSystem, MessageText } from './MessageTypes';
+import { MessageAudio, MessageDocument, MessageImage, MessageSystem, MessageText, MessageVideo } from './MessageTypes';
 
 interface MessageProps {
   message: TMessage;
@@ -18,6 +18,14 @@ const Message = ({ message }: MessageProps) => {
       return <MessageText content={message.content} />;
     case MessageType.SYSTEM:
       return <MessageSystem content={message.content} />;
+    case MessageType.IMAGE:
+      return <MessageImage content={message.content} />;
+    case MessageType.VIDEO:
+      return <MessageVideo content={message.content} />;
+    case MessageType.AUDIO:
+      return <MessageAudio content={message.content} />;
+    case MessageType.DOCUMENT:
+      return <MessageDocument content={message.content} />;
     default:
       return <Text style={styles.messageText}>[Unsupported message type]</Text>;
   }

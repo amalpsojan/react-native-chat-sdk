@@ -10,6 +10,46 @@ const createDate = (daysAgo: number, hours: number = 12, minutes: number = 0) =>
 
 // New messages are at the top of the list
 export const messages: Message[] = [
+  // Image message
+  {
+    id: "img-1",
+    content: { image: "https://sample-videos.com/img/Sample-jpg-image-1mb.jpg", caption: "A sample JPG image" },
+    createdAt: createDate(0, 19, 0),
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.IMAGE,
+    status: "sent",
+  },
+  // Video message
+  {
+    id: "vid-1",
+    content: { video: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", caption: "Sample MP4 video" },
+    createdAt: createDate(0, 18, 55),
+    from: "user-2",
+    isReceived: true,
+    type: MessageType.VIDEO,
+    status: "delivered",
+  },
+  // Audio message
+  {
+    id: "aud-1",
+    content: { audio: "https://sample-videos.com/audio/mp3/wave.mp3", voice: true },
+    createdAt: createDate(0, 18, 50),
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.AUDIO,
+    status: "read",
+  },
+  // Document message
+  {
+    id: "doc-1",
+    content: { document: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", fileName: "dummy.pdf", caption: "Sample PDF document" },
+    createdAt: createDate(0, 18, 45),
+    from: "user-2",
+    isReceived: true,
+    type: MessageType.DOCUMENT,
+    status: "sent",
+  },
   // System message: Info
   {
     id: "sys-1",
