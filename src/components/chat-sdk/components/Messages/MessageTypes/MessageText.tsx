@@ -72,6 +72,7 @@ const phoneNumberPattern2 =
   /(\+\d{1,3}\s?)?(\d{4}\s?\d{6}|\d{5}\s?\d{5}|\d{2}\s?\d{4}\s?\d{6})|[\+]?[(]?\d{3}[)]?[-\s\.]?\d{3}[-\s\.]?\d{4,7}/;
 // New pattern for phone numbers with dashes, spaces, or dots
 const phoneNumberPattern3 = /(\+?\d{1,3}[-.\s]?)?(\(?\d{2,4}\)?[-.\s]?){2,3}\d{3,4}/g;
-const deeplinkUrlPattern = /whatsapp:\/\/\S+/g;
+// Generic pattern for all deeplinks (any scheme://...)
+const deeplinkUrlPattern = /[a-zA-Z][a-zA-Z0-9+\-.]*:\/\/\S+/g;
 
 export default MessageText; 
