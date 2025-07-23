@@ -3316,6 +3316,11 @@ expo-asset@~11.1.7:
     "@expo/image-utils" "^0.7.6"
     expo-constants "~17.1.7"
 
+expo-audio@~0.4.8:
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/expo-audio/-/expo-audio-0.4.8.tgz#3e412be1263074eb5817b34d339deba2385e3de1"
+  integrity sha512-tiR4pMNlIBj/r8el8B71EYd61+1mK8sn3ssgMfbhzwKB177b5kgqOoDwjPfBcOFdbF852IGx0Akd1mduXDc6VQ==
+
 expo-blur@~14.1.5:
   version "14.1.5"
   resolved "https://registry.yarnpkg.com/expo-blur/-/expo-blur-14.1.5.tgz#910712389e19286ccdc136275bf569f427aa05ef"
@@ -3433,6 +3438,11 @@ expo-system-ui@~5.0.10:
   dependencies:
     "@react-native/normalize-colors" "0.79.5"
     debug "^4.3.2"
+
+expo-video@~2.2.2:
+  version "2.2.2"
+  resolved "https://registry.yarnpkg.com/expo-video/-/expo-video-2.2.2.tgz#0bbdff0fee90b1b6338eb9fbc4f7816f81d5783c"
+  integrity sha512-SJrW1CeiWO7WCaAVMbjqGlvOMJfU/x+d0g9izjsnEXdV/KE3NhuCI3Y/3zCcFiAoR+jrHEtlI8sPlkLx3dq8xw==
 
 expo-web-browser@~14.2.0:
   version "14.2.0"
