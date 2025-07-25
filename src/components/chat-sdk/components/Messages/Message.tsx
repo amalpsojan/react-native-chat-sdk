@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { AudioContent, DocumentContent, ImageContent, Message, MessageType, SystemContent, TextContent, VideoContent } from '../../types';
-import { MessageAudio, MessageDocument, MessageImage, MessageSystem, MessageText, MessageVideo } from './MessageTypes';
+import { AudioContent, DocumentContent, ImageContent, Message, MessageType, StickerContent, SystemContent, TextContent, VideoContent } from '../../types';
+import { MessageAudio, MessageDocument, MessageImage, MessageSticker, MessageSystem, MessageText, MessageVideo } from './MessageTypes';
 
 export type MessageRenderers = {
   [MessageType.TEXT]?: (content: TextContent) => React.ReactElement;
@@ -10,6 +10,7 @@ export type MessageRenderers = {
   [MessageType.VIDEO]?: (content: VideoContent) => React.ReactElement;
   [MessageType.AUDIO]?: (content: AudioContent) => React.ReactElement;
   [MessageType.DOCUMENT]?: (content: DocumentContent) => React.ReactElement;
+  [MessageType.STICKER]?: (content: StickerContent) => React.ReactElement;
 };
 
 const defaultMessageRenderers: MessageRenderers = {
@@ -19,6 +20,7 @@ const defaultMessageRenderers: MessageRenderers = {
   [MessageType.VIDEO]:   (content) => <MessageVideo content={content} />, 
   [MessageType.AUDIO]:   (content) => <MessageAudio content={content} />, 
   [MessageType.DOCUMENT]:(content) => <MessageDocument content={content} />, 
+  [MessageType.STICKER]:  (content) => <MessageSticker content={content} />,
 };
 
 interface MessageProps {

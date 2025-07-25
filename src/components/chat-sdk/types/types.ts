@@ -8,12 +8,7 @@ export enum MessageType {
   VIDEO = 'video',
   AUDIO = 'audio',
   DOCUMENT = 'document',
-  LOCATION = 'location',
-  CONTACT = 'contact',
-  INTERACTIVE = 'interactive',
-  TEMPLATE = 'template',
   STICKER = 'sticker',
-  ORDER = 'order',
   SYSTEM = 'system',
 }
 // System message content
@@ -50,6 +45,11 @@ export interface ImageContent {
   caption: string;
 }
 
+// Sticker message content
+export interface StickerContent {
+  sticker: string;
+}
+
 // Video message content
 export interface VideoContent {
   video: string;
@@ -82,6 +82,7 @@ export type Message =
   | (MessageBase & { type: MessageType.TEXT; content: TextContent })
   | (MessageBase & { type: MessageType.SYSTEM; content: SystemContent })
   | (MessageBase & { type: MessageType.IMAGE; content: ImageContent })
+  | (MessageBase & { type: MessageType.STICKER; content: StickerContent })
   | (MessageBase & { type: MessageType.VIDEO; content: VideoContent })
   | (MessageBase & { type: MessageType.AUDIO; content: AudioContent })
   | (MessageBase & { type: MessageType.DOCUMENT; content: DocumentContent });
