@@ -23,7 +23,7 @@ export const messages: Message[] = [
   // Video message
   {
     id: "vid-1",
-    content: { video: "https://sample-videos.com/video123/mp4/720/big_buck_bunny_720p_1mb.mp4", caption: "Sample MP4 video" },
+    content: { video: "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4", caption: "Sample MP4 video" },
     createdAt: createDate(0, 18, 55),
     from: "user-2",
     isReceived: true,
@@ -33,7 +33,7 @@ export const messages: Message[] = [
   // Audio message
   {
     id: "aud-1",
-    content: { audio: "https://sample-videos.com/audio/mp3/wave.mp3", voice: true },
+    content: { audio: "https://sample-videos.com/audio/mp3/crowd-cheering.mp3", voice: true },
     createdAt: createDate(0, 18, 50),
     from: "user-1",
     isReceived: false,

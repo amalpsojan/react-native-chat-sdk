@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { AudioContent, DocumentContent, ImageContent, Message, MessageType, StickerContent, SystemContent, TextContent, VideoContent } from '../../types';
+import { AudioContent, DocumentContent, ImageContent, MessageType, StickerContent, SystemContent, TextContent, Message as TMessage, VideoContent } from '../../types';
 import { MessageAudio, MessageDocument, MessageImage, MessageSticker, MessageSystem, MessageText, MessageVideo } from './MessageTypes';
 
 export type MessageRenderers = {
@@ -24,7 +24,7 @@ const defaultMessageRenderers: MessageRenderers = {
 };
 
 interface MessageProps {
-  message: Message;
+  message: TMessage;
   messageRenderers?: MessageRenderers;
 }
 
