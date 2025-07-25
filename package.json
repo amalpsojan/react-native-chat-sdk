@@ -9,7 +9,8 @@
     "web": "expo start --web",
     "lint": "expo lint",
     "prebuild:clean": "expo prebuild --clean",
-    "kill:port": "kill -9 $(lsof -t -i:8081)"
+    "kill:port": "kill -9 $(lsof -t -i:8081)",
+    "postinstall": "patch-package"
   },
   "dependencies": {
     "@expo/vector-icons": "^14.1.0",
@@ -42,6 +43,7 @@
     "react-native-reanimated": "~3.17.4",
     "react-native-safe-area-context": "5.4.0",
     "react-native-screens": "~4.11.1",
+    "react-native-shared-element": "0.9.0-rc0",
     "react-native-web": "~0.20.0",
     "react-native-webview": "13.13.5",
     "recyclerlistview": "^4.2.3"
@@ -51,6 +53,7 @@
     "@types/react": "~19.0.10",
     "eslint": "^9.25.0",
     "eslint-config-expo": "~9.2.0",
+    "patch-package": "^8.0.0",
     "typescript": "~5.8.3"
   },
   "private": true
