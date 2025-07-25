@@ -1,8 +1,9 @@
+import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useRef } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import InputToolbar from './components/InputToolbar/InputToolbar';
 import MessagesList from './components/Messages/MessagesList';
-import { ChatWindowProps } from './types';
+import { ChatWindowProps, Message } from './types';
 
 /**
  * ChatWindow - Main chat UI component
@@ -15,7 +16,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   onSendMessage,
   onLoadEarlier,
 }) => {
-  const listRef = useRef<FlatList>(null);
+  const listRef = useRef<FlashList<Message>>(null);
 
   const scrollToBottom = useCallback(() => {
     listRef.current?.scrollToOffset({ offset: 0, animated: true });
