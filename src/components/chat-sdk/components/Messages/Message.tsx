@@ -1,34 +1,35 @@
 import React from 'react';
 import { StyleSheet, Text } from 'react-native';
-import { MessageType, Message as TMessage } from '../../types';
+import { AudioContent, DocumentContent, ImageContent, Message, MessageType, SystemContent, TextContent, VideoContent } from '../../types';
 import { MessageAudio, MessageDocument, MessageImage, MessageSystem, MessageText, MessageVideo } from './MessageTypes';
 
+export type MessageRenderers = {
+  [MessageType.TEXT]?: (content: TextContent) => React.ReactElement;
+  [MessageType.SYSTEM]?: (content: SystemContent) => React.ReactElement;
+  [MessageType.IMAGE]?: (content: ImageContent) => React.ReactElement;
+  [MessageType.VIDEO]?: (content: VideoContent) => React.ReactElement;
+  [MessageType.AUDIO]?: (content: AudioContent) => React.ReactElement;
+  [MessageType.DOCUMENT]?: (content: DocumentContent) => React.ReactElement;
+};
+
+const defaultMessageRenderers: MessageRenderers = {
+  [MessageType.TEXT]:    (content) => <MessageText content={content} />, 
+  [MessageType.SYSTEM]:  (content) => <MessageSystem content={content} />, 
+  [MessageType.IMAGE]:   (content) => <MessageImage content={content} />, 
+  [MessageType.VIDEO]:   (content) => <MessageVideo content={content} />, 
+  [MessageType.AUDIO]:   (content) => <MessageAudio content={content} />, 
+  [MessageType.DOCUMENT]:(content) => <MessageDocument content={content} />, 
+};
+
 interface MessageProps {
-  message: TMessage;
+  message: Message;
+  messageRenderers?: MessageRenderers;
 }
 
-/**
- * Message - Determines which message type component to render
- * 
- * Handles different message types and delegates to the appropriate component
- */
-const Message = ({ message }: MessageProps) => {
-  switch (message.type) {
-    case MessageType.TEXT:
-      return <MessageText content={message.content} />;
-    case MessageType.SYSTEM:
-      return <MessageSystem content={message.content} />;
-    case MessageType.IMAGE:
-      return <MessageImage content={message.content} />;
-    case MessageType.VIDEO:
-      return <MessageVideo content={message.content} />;
-    case MessageType.AUDIO:
-      return <MessageAudio content={message.content} />;
-    case MessageType.DOCUMENT:
-      return <MessageDocument content={message.content} />;
-    default:
-      return <Text style={styles.messageText}>[Unsupported message type]</Text>;
-  }
+const Message = ({ message, messageRenderers }: MessageProps) => {
+  const renderers = { ...defaultMessageRenderers, ...messageRenderers };
+  const render = renderers[message.type] as ((content: any) => React.ReactElement) | undefined;
+  return render ? render(message.content) : <Text style={styles.messageText}>[Unsupported message type]</Text>;
 };
 
 const styles = StyleSheet.create({

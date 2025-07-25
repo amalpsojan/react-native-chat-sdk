@@ -4,12 +4,14 @@ import { StyleSheet, Text, View } from "react-native";
 import { Message } from "../../types";
 import { isSameDay } from "../../utils/utils";
 import DateSeparator from "../DateSeparator";
+import type { MessageRenderers } from "./Message";
 import MessageBubble from "./MessageBubble";
 
 interface MessagesListProps {
   messages: Message[];
   currentUserId: string;
   onLoadEarlier?: () => void;
+  messageRenderers?: MessageRenderers;
 }
 
 /**
@@ -18,7 +20,7 @@ interface MessagesListProps {
  * Handles message rendering, scrolling, and loading earlier messages
  */
 const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
-  ({ messages, currentUserId, onLoadEarlier }, ref) => {
+  ({ messages, currentUserId, onLoadEarlier, messageRenderers }, ref) => {
     const renderItem = useCallback(
       ({ item, index }: { item: Message; index: number }) => {
         // Get adjacent messages for grouping logic
@@ -36,6 +38,7 @@ const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
               message={item}
               prevMessage={prevMessage}
               nextMessage={nextMessage}
+              messageRenderers={messageRenderers}
             />
 
             {showDateSeparator && (
@@ -50,7 +53,7 @@ const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
           </>
         );
       },
-      [messages, currentUserId]
+      [messages, currentUserId, messageRenderers]
     );
 
     const keyExtractor = useCallback((item: Message) => item.id, []);

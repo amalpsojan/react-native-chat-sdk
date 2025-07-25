@@ -1,5 +1,7 @@
 // Chat SDK minimal type definitions – version 0.1
 
+import type { MessageRenderers } from '../components/Messages/Message';
+
 export enum MessageType {
   TEXT = 'text',
   IMAGE = 'image',
@@ -94,6 +96,6 @@ export interface ChatWindowProps {
   onEditMessage?: (messageId: string, newText: string) => void;
   onRetryMessage?: (message: Message) => void;
   onLoadEarlier?: () => void;
-
+  messageRenderers?: MessageRenderers;
   // Later: typingIndicator, theme, customRenderers, etc.
 } 

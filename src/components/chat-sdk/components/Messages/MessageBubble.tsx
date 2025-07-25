@@ -1,6 +1,7 @@
 import React, { memo, useMemo } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { MessageType, Message as TMessage } from '../../types';
+import type { MessageRenderers } from './Message';
 import Message from './Message';
 import MetadataContainer from './MetadataContainer';
 
@@ -8,6 +9,7 @@ interface MessageBubbleProps {
   message: TMessage;
   prevMessage?: TMessage | null;
   nextMessage?: TMessage | null;
+  messageRenderers?: MessageRenderers;
 }
 
 /**
@@ -16,7 +18,7 @@ interface MessageBubbleProps {
  * Handles bubble styling based on sender (left/right alignment)
  * and groups consecutive messages from the same sender
  */
-const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubbleProps) => {
+const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderers }: MessageBubbleProps) => {
   // Check if message has been edited
   const isEdited = !!message.editedAt;
 
@@ -63,7 +65,7 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubble
     return (
       <View style={styles.systemRow}>
         <View style={styles.systemContainer}>
-          <Message message={message} />
+          <Message message={message} messageRenderers={messageRenderers} />
         </View>
       </View>
     );
@@ -79,7 +81,7 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage }: MessageBubble
         bubbleBaseStyle,
         bubbleGroupStyle,
       ]}>
-        <Message message={message} />
+        <Message message={message} messageRenderers={messageRenderers} />
         <MetadataContainer
           isEdited={!!isEdited}
           createdAt={createdAt}
