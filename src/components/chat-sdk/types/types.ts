@@ -67,21 +67,28 @@ export interface DocumentContent {
   caption: string;
 }
 
-export interface Message {
+export interface MessageBase {
   id: string;
   from: string;
   isReceived: boolean;
-  type: MessageType;
-  content: TextContent | SystemContent | ImageContent | VideoContent | AudioContent | DocumentContent; // Will add more specific types as we implement them
   createdAt: Date | string | number;
   editedAt?: Date | string | number;
-  status?: 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
+  status?: MessageStatus;
 }
+
+export type Message =
+  | (MessageBase & { type: MessageType.TEXT; content: TextContent })
+  | (MessageBase & { type: MessageType.SYSTEM; content: SystemContent })
+  | (MessageBase & { type: MessageType.IMAGE; content: ImageContent })
+  | (MessageBase & { type: MessageType.VIDEO; content: VideoContent })
+  | (MessageBase & { type: MessageType.AUDIO; content: AudioContent })
+  | (MessageBase & { type: MessageType.DOCUMENT; content: DocumentContent });
+
+export type MessageStatus = 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
 
 export interface ChatWindowProps {
   messages: Message[];
   currentUserId: string;
-
   onSendMessage: (message: Partial<Message>) => void;
   onDeleteMessage?: (messageId: string) => void;
   onEditMessage?: (messageId: string, newText: string) => void;
