@@ -1,100 +1,211 @@
-import { MaterialCommunityIcons } from '@expo/vector-icons';
-import React, { useRef, useState } from 'react';
-import { Dimensions, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { SharedElement } from 'react-native-shared-element';
-import { ImageContent } from '../../../types/types';
+import React, { useState } from "react";
+import {
+  Dimensions,
+  Image,
+  Modal,
+  StatusBar,
+  StyleSheet,
+  TouchableOpacity,
+  View,
+} from "react-native";
+import {
+  Gesture,
+  GestureDetector,
+  GestureHandlerRootView,
+} from "react-native-gesture-handler";
+import Animated, {
+  runOnJS,
+  useAnimatedStyle,
+  useSharedValue,
+  withSpring,
+  withTiming,
+} from "react-native-reanimated";
+import { ImageContent } from "../../../types/types";
 
-const IMAGE_ID_PREFIX = 'chat-image-';
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 const MessageImage = ({ content }: { content: ImageContent }) => {
-  const insets = useSafeAreaInsets();
-  const [modalVisible, setModalVisible] = useState(false);
-  // Refs for shared element
-  const startAncestorRef = useRef<View>(null);
-  const startNodeRef = useRef<any>(null);
-  const endAncestorRef = useRef<View>(null);
-  const endNodeRef = useRef<any>(null);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [imageLayout, setImageLayout] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
 
-  // These will be used by the overlay (to be implemented at a higher level)
-  // For now, just demonstrate the correct usage of refs and onNode
+  // Animation values
+  const scale = useSharedValue(1);
+  const translateX = useSharedValue(0);
+  const translateY = useSharedValue(0);
+  const opacity = useSharedValue(0);
 
-  const sharedId = IMAGE_ID_PREFIX + content.image;
+  const openFullscreen = (event) => {
+    // Get the image position for smooth transition
+    event.target.measure((x, y, width, height, pageX, pageY) => {
+      setImageLayout({ x: pageX, y: pageY, width, height });
+
+      // Calculate the center offset
+      const centerX = screenWidth / 2 - pageX - width / 2;
+      const centerY = screenHeight / 2 - pageY - height / 2;
+
+      setIsFullscreen(true);
+
+      // Start animation
+      opacity.value = withTiming(1, { duration: 300 });
+      translateX.value = withSpring(centerX, { damping: 20, stiffness: 100 });
+      translateY.value = withSpring(centerY, { damping: 20, stiffness: 100 });
+      scale.value = withSpring(
+        Math.min(screenWidth / width, screenHeight / height) * 0.9,
+        { damping: 20, stiffness: 100 }
+      );
+    });
+  };
+
+  const closeFullscreen = () => {
+    // Animate back to original position
+    scale.value = withSpring(1, { damping: 20, stiffness: 100 });
+    translateX.value = withSpring(0, { damping: 20, stiffness: 100 });
+    translateY.value = withSpring(0, { damping: 20, stiffness: 100 });
+    opacity.value = withTiming(0, { duration: 300 }, () => {
+      runOnJS(setIsFullscreen)(false);
+    });
+  };
+
+  // Pinch gesture for zoom
+  const pinchGesture = Gesture.Pinch()
+    .onUpdate((event) => {
+      scale.value = Math.max(0.5, Math.min(event.scale, 3));
+    })
+    .onEnd(() => {
+      if (scale.value < 1) {
+        runOnJS(closeFullscreen)();
+      } else if (scale.value > 2) {
+        scale.value = withSpring(2);
+      }
+    });
+
+  // Pan gesture for dragging
+  const panGesture = Gesture.Pan()
+    .onUpdate((event) => {
+      translateX.value = event.translationX;
+      translateY.value = event.translationY;
+    })
+    .onEnd((event) => {
+      // Snap back to center or close if dragged far enough
+      const distance = Math.sqrt(
+        event.translationX ** 2 + event.translationY ** 2
+      );
+      if (distance > 100) {
+        runOnJS(closeFullscreen)();
+      } else {
+        translateX.value = withSpring(0);
+        translateY.value = withSpring(0);
+      }
+    });
+
+  const composedGesture = Gesture.Simultaneous(pinchGesture, panGesture);
+
+  // Animated styles
+  const animatedImageStyle = useAnimatedStyle(() => ({
+    transform: [
+      { translateX: translateX.value },
+      { translateY: translateY.value },
+      { scale: scale.value },
+    ],
+  }));
+
+  const backgroundStyle = useAnimatedStyle(() => ({
+    opacity: opacity.value,
+  }));
 
   return (
-    <View style={styles.container}>
-      <View ref={ref => {
-        startAncestorRef.current = ref;
-      }}>
-        <Pressable onPress={() => setModalVisible(true)}>
-          <SharedElement id={sharedId} onNode={node => { startNodeRef.current = node; }}>
-            <Image source={{ uri: content.image }} style={styles.image} resizeMode="cover" />
-          </SharedElement>
-        </Pressable>
-      </View>
-      {content.caption ? <Text style={styles.caption}>{content.caption}</Text> : null}
-      <Modal
-        visible={modalVisible}
-        transparent={true}
-        animationType="fade"
-        onRequestClose={() => setModalVisible(false)}
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      {/* Preview Image in Chat */}
+      <TouchableOpacity
+        onPress={openFullscreen}
+        activeOpacity={0.9}
       >
-        <View style={[styles.modalBackground]} ref={ref => { endAncestorRef.current = ref; }}>
-          {/* Close Button */}
-          <Pressable
-            style={[styles.closeButton]}
-            onPress={() => setModalVisible(false)}
-            hitSlop={10}
-          >
-            <MaterialCommunityIcons name="close" size={28} color="#fff" />
-          </Pressable>
-          <Pressable style={styles.modalBackground} onPress={() => setModalVisible(false)}>
-            <SharedElement id={sharedId} onNode={node => { endNodeRef.current = node; }} style={styles.modalImageWrapper}>
-              <Image
-                source={{ uri: content.image }}
-                resizeMode="contain"
-                style={{
-                  width: Dimensions.get('window').width * 0.95,
-                  height: Dimensions.get('window').height * 0.7 - (insets.top + insets.bottom),
-                  borderRadius: 12,
-                }}
+        <Image
+          source={{ uri: content.image }}
+          style={[
+            styles.previewImage,
+          ]}
+          resizeMode="cover"
+        />
+      </TouchableOpacity>
+
+      {/* Fullscreen Modal */}
+      {isFullscreen && (
+        <Modal
+          visible={isFullscreen}
+          transparent={true}
+          animationType="none" // We handle all animations ourselves
+          onRequestClose={closeFullscreen}
+        >
+          <View style={styles.modalContainer}>
+            <StatusBar hidden />
+
+            {/* Dark Background */}
+            <Animated.View style={[styles.modalBackground, backgroundStyle]}>
+              <TouchableOpacity
+                style={StyleSheet.absoluteFillObject}
+                onPress={closeFullscreen}
+                activeOpacity={1}
               />
-            </SharedElement>
-          </Pressable>
-        </View>
-      </Modal>
-    </View>
+            </Animated.View>
+
+            {/* Animated Image */}
+            <View
+              style={[
+                styles.imageContainer,
+                {
+                  left: imageLayout.x,
+                  top: imageLayout.y,
+                  width: imageLayout.width,
+                  height: imageLayout.height,
+                },
+              ]}
+            >
+              <GestureDetector gesture={composedGesture}>
+                <Animated.View style={animatedImageStyle}>
+                  <Image
+                    source={{ uri: content.image }}
+                    style={[
+                      styles.animatedImage,
+                      { width: imageLayout.width, height: imageLayout.height },
+                    ]}
+                    resizeMode="cover"
+                  />
+                </Animated.View>
+              </GestureDetector>
+            </View>
+          </View>
+        </Modal>
+      )}
+    </GestureHandlerRootView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { alignItems: 'center', justifyContent: 'center' },
-  image: { width: 200, height: 200, borderRadius: 8, marginBottom: 4 },
-  caption: { fontSize: 12, color: '#555', textAlign: 'center' },
-  modalBackground: {
+  previewImage: {
+    width: 200,
+    height: 200,
+    borderRadius: 8,
+    marginBottom: 4,
+  },
+  modalContainer: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.9)',
-    justifyContent: 'center',
-    alignItems: 'center',
   },
-  modalImageWrapper: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    width: '100%',
-    height: '100%',
+  modalBackground: {
+    ...StyleSheet.absoluteFillObject,
+    backgroundColor: "rgba(0, 0, 0, 0.9)",
   },
-  modalImage: {
-    borderRadius: 12,
+  imageContainer: {
+    position: "absolute",
   },
-  closeButton: {
-    position: 'absolute',
-    top: 32,
-    right: 24,
-    zIndex: 10,
-    backgroundColor: 'rgba(0,0,0,0.6)',
-    borderRadius: 20,
-    padding: 4,
+  animatedImage: {
+    borderRadius: 8,
   },
 });
 
-export default MessageImage; 
+export default MessageImage;
