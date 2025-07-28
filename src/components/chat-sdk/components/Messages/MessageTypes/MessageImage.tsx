@@ -1,14 +1,12 @@
-import React, { useState } from "react";
+import React, { Fragment, useState } from "react";
 import {
   Dimensions,
   Image,
   StyleSheet,
+  Text,
   TouchableOpacity,
 } from "react-native";
-import {
-  Gesture,
-  GestureDetector,
-} from "react-native-gesture-handler";
+import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import Animated, {
   runOnJS,
   useAnimatedStyle,
@@ -34,21 +32,27 @@ interface PopupLayoutProps {
 // Component for the initial image layout (thumbnail in chat)
 const InitialLayout: React.FC<InitialLayoutProps> = ({ content, onPress }) => {
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.9}
-    >
+    <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
       <Image
         source={{ uri: content.image }}
         style={styles.previewImage}
         resizeMode="cover"
       />
+      {content.caption && (
+        <Text style={styles.caption} numberOfLines={2}>
+          {content.caption}
+        </Text>
+      )}
     </TouchableOpacity>
   );
 };
 
 // Component for the popup layout with gestures
-const PopupLayout: React.FC<PopupLayoutProps> = ({ content, layout, onClose }) => {
+const PopupLayout: React.FC<PopupLayoutProps> = ({
+  content,
+  layout,
+  onClose,
+}) => {
   // Animation values for gestures
   const scale = useSharedValue(1);
   const translateX = useSharedValue(0);
@@ -127,7 +131,7 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({ content, layout, onClose }) =
       const distance = Math.sqrt(
         event.translationX ** 2 + event.translationY ** 2
       );
-      
+
       if (distance > 150 && scale.value <= 1.2) {
         // Close if dragged far and not zoomed in much
         runOnJS(onClose)();
@@ -135,18 +139,24 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({ content, layout, onClose }) =
         // Constrain within bounds based on zoom level
         const imageWidth = layout.width * scale.value;
         const imageHeight = layout.height * scale.value;
-        
+
         // Calculate max translation to keep image visible
         const maxTranslateX = Math.max(0, (imageWidth - screenWidth) / 2);
         const maxTranslateY = Math.max(0, (imageHeight - screenHeight) / 2);
-        
+
         // Constrain and animate to bounds
-        const constrainedX = Math.max(-maxTranslateX, Math.min(maxTranslateX, translateX.value));
-        const constrainedY = Math.max(-maxTranslateY, Math.min(maxTranslateY, translateY.value));
-        
+        const constrainedX = Math.max(
+          -maxTranslateX,
+          Math.min(maxTranslateX, translateX.value)
+        );
+        const constrainedY = Math.max(
+          -maxTranslateY,
+          Math.min(maxTranslateY, translateY.value)
+        );
+
         translateX.value = withSpring(constrainedX);
         translateY.value = withSpring(constrainedY);
-        
+
         // Save final positions
         savedTranslateX.value = constrainedX;
         savedTranslateY.value = constrainedY;
@@ -169,18 +179,20 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({ content, layout, onClose }) =
   }));
 
   return (
-    <GestureDetector gesture={composedGesture}>
-      <Animated.View style={animatedImageStyle}>
-        <Image
-          source={{ uri: content.image }}
-          style={[
-            styles.fullscreenImage,
-            { width: layout.width, height: layout.height },
-          ]}
-          resizeMode="cover"
-        />
-      </Animated.View>
-    </GestureDetector>
+    <Fragment>
+      <GestureDetector gesture={composedGesture}>
+        <Animated.View style={animatedImageStyle}>
+          <Image
+            source={{ uri: content.image }}
+            style={[
+              styles.fullscreenImage,
+              { width: layout.width, height: layout.height },
+            ]}
+            resizeMode="cover"
+          />
+        </Animated.View>
+      </GestureDetector>
+    </Fragment>
   );
 };
 
@@ -196,10 +208,19 @@ const MessageImage = ({ content }: { content: ImageContent }) => {
 
   const openFullscreen = (event: any) => {
     // Get the image position for smooth transition
-    event.target.measure((x: number, y: number, width: number, height: number, pageX: number, pageY: number) => {
-      setImageLayout({ x: pageX, y: pageY, width, height });
-      setIsFullscreen(true);
-    });
+    event.target.measure(
+      (
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        pageX: number,
+        pageY: number
+      ) => {
+        setImageLayout({ x: pageX, y: pageY, width, height });
+        setIsFullscreen(true);
+      }
+    );
   };
 
   const closeFullscreen = () => {
@@ -211,11 +232,7 @@ const MessageImage = ({ content }: { content: ImageContent }) => {
   );
 
   const renderPopupLayout = (layout: { width: number; height: number }) => (
-    <PopupLayout 
-      content={content} 
-      layout={layout} 
-      onClose={closeFullscreen}
-    />
+    <PopupLayout content={content} layout={layout} onClose={closeFullscreen} />
   );
 
   return (
@@ -240,6 +257,28 @@ const styles = StyleSheet.create({
   },
   fullscreenImage: {
     borderRadius: 8,
+  },
+  caption: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+    marginBottom: 4,
+    lineHeight: 18,
+  },
+  fullscreenCaption: {
+    position: "absolute",
+    bottom: 10,
+    right: 0,
+    left: 0,
+    backgroundColor: "rgba(0,0,0,0.5)",
+    color: "#fff",
+    fontSize: 14,
+    lineHeight: 18,
+  },
+  fullscreenContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
