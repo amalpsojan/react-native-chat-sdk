@@ -1,8 +1,9 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import * as VideoThumbnails from "expo-video-thumbnails";
-import React, { useEffect, useState } from "react";
+import React, { Fragment, useEffect, useState } from "react";
 import {
+  Dimensions,
   ImageBackground,
   StyleSheet,
   Text,
@@ -10,6 +11,9 @@ import {
   View,
 } from "react-native";
 import { VideoContent } from "../../../types/types";
+import SharedPopup from "../../SharedPopup";
+
+const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 interface InitialLayoutProps {
   content: VideoContent;
@@ -22,7 +26,7 @@ interface PopupLayoutProps {
   onClose: () => void;
 }
 
-// Component for the initial image layout (thumbnail in chat)
+// Component for the initial video layout (thumbnail in chat)
 const InitialLayout: React.FC<InitialLayoutProps> = ({ content, onPress }) => {
   const [image, setImage] = useState<string | null>(null);
 
@@ -55,7 +59,11 @@ const InitialLayout: React.FC<InitialLayoutProps> = ({ content, onPress }) => {
           </View>
         </ImageBackground>
       ) : (
-        <View style={styles.previewImage} />
+        <View style={styles.previewImage}>
+          <View style={styles.playIconContainer}>
+            <MaterialCommunityIcons name="play" size={40} color="white" />
+          </View>
+        </View>
       )}
       {content.caption && (
         <Text style={styles.caption} numberOfLines={2}>
@@ -66,34 +74,82 @@ const InitialLayout: React.FC<InitialLayoutProps> = ({ content, onPress }) => {
   );
 };
 
-// Component for the popup layout with gestures
+// Component for the popup layout
 const PopupLayout: React.FC<PopupLayoutProps> = ({
   content,
   layout,
   onClose,
 }) => {
   const player = useVideoPlayer(content.video);
+
   return (
-    <View style={styles.container}>
+    <Fragment>
       <VideoView
         player={player}
-        style={styles.video}
+        style={[
+          styles.fullscreenVideo,
+          { width: layout.width, height: layout.height },
+        ]}
         nativeControls
         contentFit="contain"
       />
-      {content.caption ? (
-        <Text style={styles.caption}>{content.caption}</Text>
-      ) : null}
-    </View>
+    </Fragment>
   );
 };
 
-const MessageVideo = ({ content }: { content: VideoContent }) => {};
+// Main MessageVideo component
+const MessageVideo = ({ content }: { content: VideoContent }) => {
+  const [isFullscreen, setIsFullscreen] = useState(false);
+  const [videoLayout, setVideoLayout] = useState({
+    x: 0,
+    y: 0,
+    width: 0,
+    height: 0,
+  });
+
+  const openFullscreen = (event: any) => {
+    // Get the video position for smooth transition
+    event.target.measure(
+      (
+        x: number,
+        y: number,
+        width: number,
+        height: number,
+        pageX: number,
+        pageY: number
+      ) => {
+        setVideoLayout({ x: pageX, y: pageY, width, height });
+        setIsFullscreen(true);
+      }
+    );
+  };
+
+  const closeFullscreen = () => {
+    setIsFullscreen(false);
+  };
+
+  const renderInitialLayout = () => (
+    <InitialLayout content={content} onPress={openFullscreen} />
+  );
+
+  const renderPopupLayout = (layout: { width: number; height: number }) => (
+    <PopupLayout content={content} layout={layout} onClose={closeFullscreen} />
+  );
+
+  return (
+    <SharedPopup
+      visible={isFullscreen}
+      onClose={closeFullscreen}
+      renderInitialLayout={renderInitialLayout}
+      renderPopupLayout={renderPopupLayout}
+      initialLayout={videoLayout}
+      showCloseButton={true}
+      animateToCenter={true}
+    />
+  );
+};
 
 const styles = StyleSheet.create({
-  container: { alignItems: "center", justifyContent: "center" },
-  video: { width: 200, height: 200, borderRadius: 8, marginBottom: 4 },
-  caption: { fontSize: 12, color: "#555", textAlign: "center" },
   previewImage: {
     width: 200,
     height: 200,
@@ -102,6 +158,16 @@ const styles = StyleSheet.create({
     alignItems: "center",
     justifyContent: "center",
   },
+  fullscreenVideo: {
+    borderRadius: 8,
+  },
+  caption: {
+    fontSize: 14,
+    color: "#666",
+    marginTop: 4,
+    marginBottom: 4,
+    lineHeight: 18,
+  },
   playIconContainer: {
     backgroundColor: "rgba(0, 0, 0, 0.75)",
     borderRadius: 100,
@@ -109,4 +175,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default InitialLayout;
+export default MessageVideo;
