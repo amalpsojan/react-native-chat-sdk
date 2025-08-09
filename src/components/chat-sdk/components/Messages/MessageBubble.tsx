@@ -3,7 +3,8 @@ import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import React, { memo, useCallback, useMemo, useState } from 'react';
 import { Alert, Platform, StyleSheet, View } from 'react-native';
-import { LongPressGestureHandler } from 'react-native-gesture-handler';
+import { Gesture, GestureDetector } from 'react-native-gesture-handler';
+import { runOnJS } from 'react-native-reanimated';
 import { MessageType, Message as TMessage } from '../../types';
 import type { MessageRenderers } from './Message';
 import Message from './Message';
@@ -34,7 +35,7 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
   const openMenu = useCallback(() => setMenuVisible(true), []);
   const closeMenu = useCallback(() => setMenuVisible(false), []);
 
-  // Determine if this message should be grouped with adjacent messages
+  // Determine if message should be grouped with adjacent messages
   const isFirstInGroup = !prevMessage || prevMessage.isReceived !== message.isReceived;
   const isLastInGroup = !nextMessage || nextMessage.isReceived !== message.isReceived;
 
@@ -65,11 +66,9 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
   const bubbleBaseStyle = message.isReceived ? styles.bubbleLeft : styles.bubbleRight;
 
   const createdAt = useMemo(() => {
-
-    if(isEdited && message.editedAt){
+    if (isEdited && message.editedAt) {
       return typeof message.editedAt === 'number' ? message.editedAt : new Date(message.editedAt).getTime();
     }
-
     return typeof message.createdAt === 'number' ? message.createdAt : new Date(message.createdAt).getTime();
   }, [message.createdAt, message.editedAt, isEdited]);
 
@@ -186,6 +185,17 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
     return actions;
   }, [message, onEditMessage, onDeleteMessageId, onRetryMessage, handleDownload, handleShare]);
 
+  // Long press gesture via new API
+  const longPressGesture = useMemo(
+    () =>
+      Gesture.LongPress()
+        .minDuration(350)
+        .onStart(() => {
+          runOnJS(openMenu)();
+        }),
+    [openMenu]
+  );
+
   if (message.type === MessageType.SYSTEM) {
     return (
       <View style={styles.systemRow}>
@@ -203,12 +213,14 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
         styles.messageRow,
         isFirstInGroup ? styles.messageRowFirst : styles.messageRowGrouped,
       ]}>
-        <LongPressGestureHandler minDurationMs={350} onActivated={openMenu}>
-          <View style={[
-            styles.bubble,
-            bubbleBaseStyle,
-            bubbleGroupStyle,
-          ]}>
+        <GestureDetector gesture={longPressGesture}>
+          <View
+            style={[
+              styles.bubble,
+              bubbleBaseStyle,
+              bubbleGroupStyle,
+            ]}
+          >
             <Message message={message} messageRenderers={messageRenderers} />
             <MetadataContainer
               isEdited={!!isEdited}
@@ -217,7 +229,7 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
               status={message.status}
             />
           </View>
-        </LongPressGestureHandler>
+        </GestureDetector>
       </View>
     </>
   );
