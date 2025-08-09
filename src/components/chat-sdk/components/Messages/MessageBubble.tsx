@@ -1,8 +1,12 @@
-import React, { memo, useMemo } from 'react';
-import { StyleSheet, View } from 'react-native';
+import * as Clipboard from 'expo-clipboard';
+import * as FileSystem from 'expo-file-system';
+import * as Sharing from 'expo-sharing';
+import React, { memo, useCallback, useMemo, useState } from 'react';
+import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
 import { MessageType, Message as TMessage } from '../../types';
 import type { MessageRenderers } from './Message';
 import Message from './Message';
+import MessageActionsMenu, { ActionItem } from './MessageActionsMenu';
 import MetadataContainer from './MetadataContainer';
 
 interface MessageBubbleProps {
@@ -10,6 +14,9 @@ interface MessageBubbleProps {
   prevMessage?: TMessage | null;
   nextMessage?: TMessage | null;
   messageRenderers?: MessageRenderers;
+  onEditMessage?: (message: TMessage) => void;
+  onDeleteMessageId?: (messageId: string) => void;
+  onRetryMessage?: (message: TMessage) => void;
 }
 
 /**
@@ -18,9 +25,13 @@ interface MessageBubbleProps {
  * Handles bubble styling based on sender (left/right alignment)
  * and groups consecutive messages from the same sender
  */
-const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderers }: MessageBubbleProps) => {
+const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderers, onEditMessage, onDeleteMessageId, onRetryMessage }: MessageBubbleProps) => {
   // Check if message has been edited
   const isEdited = !!message.editedAt;
+
+  const [menuVisible, setMenuVisible] = useState(false);
+  const openMenu = useCallback(() => setMenuVisible(true), []);
+  const closeMenu = useCallback(() => setMenuVisible(false), []);
 
   // Determine if this message should be grouped with adjacent messages
   const isFirstInGroup = !prevMessage || prevMessage.isReceived !== message.isReceived;
@@ -61,6 +72,119 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
     return typeof message.createdAt === 'number' ? message.createdAt : new Date(message.createdAt).getTime();
   }, [message.createdAt, message.editedAt, isEdited]);
 
+  const handleDownload = useCallback(async (uri: string, suggestedName: string) => {
+    try {
+      const safeName = suggestedName.replace(/[^a-zA-Z0-9._-]/g, '_');
+      const localUri = `${FileSystem.documentDirectory}${safeName}`;
+      const info = await FileSystem.getInfoAsync(localUri);
+      if (!info.exists) {
+        const dl = FileSystem.createDownloadResumable(uri, localUri);
+        await dl.downloadAsync();
+      }
+      Alert.alert('Downloaded', Platform.OS === 'ios' ? 'Saved to app documents.' : 'Saved to app files.');
+    } catch (e) {
+      Alert.alert('Error', 'Download failed.');
+    }
+  }, []);
+
+  const handleShare = useCallback(async (uri: string, mimeType?: string) => {
+    const canShare = await Sharing.isAvailableAsync();
+    if (!canShare) {
+      Alert.alert('Unavailable', 'Sharing is not available on this device.');
+      return;
+    }
+    try {
+      await Sharing.shareAsync(uri, mimeType ? { mimeType } : undefined);
+    } catch (e) {
+      Alert.alert('Error', 'Share failed.');
+    }
+  }, []);
+
+  const buildActions = useCallback((): ActionItem[] => {
+    const actions: ActionItem[] = [];
+
+    // Copy (text only)
+    if (message.type === MessageType.TEXT) {
+      actions.push({
+        key: 'copy',
+        label: 'Copy',
+        icon: 'content-copy',
+        onPress: () => {
+          const text = (message.content as any)?.text ?? '';
+          if (text) Clipboard.setStringAsync(text);
+        },
+      });
+    }
+
+    // Media actions (download/share)
+    if (
+      message.type === MessageType.IMAGE ||
+      message.type === MessageType.VIDEO ||
+      message.type === MessageType.AUDIO ||
+      message.type === MessageType.DOCUMENT ||
+      message.type === MessageType.STICKER
+    ) {
+      let uri = '';
+      let fileName = 'file';
+      switch (message.type) {
+        case MessageType.IMAGE:
+          uri = (message.content as any).image;
+          fileName = (message.content as any).caption || 'image.jpg';
+          break;
+        case MessageType.VIDEO:
+          uri = (message.content as any).video;
+          fileName = (message.content as any).caption || 'video.mp4';
+          break;
+        case MessageType.AUDIO:
+          uri = (message.content as any).audio;
+          fileName = 'audio.m4a';
+          break;
+        case MessageType.DOCUMENT:
+          uri = (message.content as any).document;
+          fileName = (message.content as any).fileName || 'document';
+          break;
+        case MessageType.STICKER:
+          uri = (message.content as any).sticker;
+          fileName = 'sticker.png';
+          break;
+      }
+
+      actions.push({ key: 'download', label: 'Download', icon: 'download', onPress: () => handleDownload(uri, fileName) });
+      actions.push({ key: 'share', label: 'Share', icon: 'share-variant', onPress: async () => {
+        // Ensure local file for sharing on some platforms
+        if (uri.startsWith('http')) {
+          try {
+            const safe = fileName.replace(/[^a-zA-Z0-9._-]/g, '_');
+            const local = `${FileSystem.documentDirectory}${safe}`;
+            const info = await FileSystem.getInfoAsync(local);
+            if (!info.exists) {
+              const dl = FileSystem.createDownloadResumable(uri, local);
+              await dl.downloadAsync();
+            }
+            await handleShare(local);
+            return;
+          } catch {}
+        }
+        await handleShare(uri);
+      }});
+    }
+
+    // Edit/Delete (own messages)
+    if (!message.isReceived) {
+      if (message.type === MessageType.TEXT && onEditMessage) {
+        actions.push({ key: 'edit', label: 'Edit', icon: 'pencil', onPress: () => onEditMessage(message) });
+      }
+      if (onDeleteMessageId) {
+        actions.push({ key: 'delete', label: 'Delete', icon: 'trash-can-outline', onPress: () => onDeleteMessageId(message.id) });
+      }
+      if (message.status === 'failed' && onRetryMessage) {
+        actions.push({ key: 'retry', label: 'Retry', icon: 'refresh', onPress: () => onRetryMessage(message) });
+      }
+    }
+
+    return actions;
+  }, [message, onEditMessage, onDeleteMessageId, onRetryMessage, handleDownload, handleShare]);
+
   if (message.type === MessageType.SYSTEM) {
     return (
       <View style={styles.systemRow}>
@@ -72,24 +196,32 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
   }
 
   return (
-    <View style={[
-      styles.messageRow,
-      isFirstInGroup ? styles.messageRowFirst : styles.messageRowGrouped,
-    ]}>
+    <>
+      <MessageActionsMenu visible={menuVisible} onClose={closeMenu} actions={buildActions()} />
       <View style={[
-        styles.bubble,
-        bubbleBaseStyle,
-        bubbleGroupStyle,
+        styles.messageRow,
+        isFirstInGroup ? styles.messageRowFirst : styles.messageRowGrouped,
       ]}>
-        <Message message={message} messageRenderers={messageRenderers} />
-        <MetadataContainer
-          isEdited={!!isEdited}
-          createdAt={createdAt}
-          isReceived={!!message.isReceived}
-          status={message.status}
-        />
+        <Pressable
+          onLongPress={openMenu}
+          delayLongPress={300}
+          android_ripple={{ color: 'rgba(0,0,0,0.05)' }}
+          style={[
+            styles.bubble,
+            bubbleBaseStyle,
+            bubbleGroupStyle,
+          ]}
+        >
+          <Message message={message} messageRenderers={messageRenderers} />
+          <MetadataContainer
+            isEdited={!!isEdited}
+            createdAt={createdAt}
+            isReceived={!!message.isReceived}
+            status={message.status}
+          />
+        </Pressable>
       </View>
-    </View>
+    </>
   );
 });
 

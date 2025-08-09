@@ -12,6 +12,9 @@ interface MessagesListProps {
   currentUserId: string;
   onLoadEarlier?: () => void;
   messageRenderers?: MessageRenderers;
+  onEditMessage?: (messageId: string, newText: string) => void;
+  onDeleteMessage?: (messageId: string) => void;
+  onRetryMessage?: (message: Message) => void;
 }
 
 /**
@@ -20,7 +23,7 @@ interface MessagesListProps {
  * Handles message rendering, scrolling, and loading earlier messages
  */
 const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
-  ({ messages, currentUserId, onLoadEarlier, messageRenderers }, ref) => {
+  ({ messages, currentUserId, onLoadEarlier, messageRenderers, onEditMessage, onDeleteMessage, onRetryMessage }, ref) => {
     const renderItem = useCallback(
       ({ item, index }: { item: Message; index: number }) => {
         // Get adjacent messages for grouping logic
@@ -39,6 +42,8 @@ const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
               prevMessage={prevMessage}
               nextMessage={nextMessage}
               messageRenderers={messageRenderers}
+              onDeleteMessageId={onDeleteMessage}
+              onRetryMessage={onRetryMessage}
             />
 
             {showDateSeparator && (
@@ -53,7 +58,7 @@ const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
           </>
         );
       },
-      [messages, currentUserId, messageRenderers]
+      [messages, currentUserId, messageRenderers, onDeleteMessage, onRetryMessage]
     );
 
     const keyExtractor = useCallback((item: Message) => item.id, []);

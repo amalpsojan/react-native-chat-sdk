@@ -16,6 +16,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   onSendMessage,
   onLoadEarlier,
   messageRenderers,
+  onEditMessage,
+  onDeleteMessage,
+  onRetryMessage,
 }) => {
   const listRef = useRef<FlashList<Message>>(null);
 
@@ -32,6 +35,9 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           currentUserId={currentUserId}
           onLoadEarlier={onLoadEarlier}
           messageRenderers={messageRenderers}
+          onEditMessage={onEditMessage}
+          onDeleteMessage={onDeleteMessage}
+          onRetryMessage={onRetryMessage}
         />
       </View>
       <InputToolbar
