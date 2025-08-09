@@ -39,6 +39,14 @@ export const messages: Message[] = [
     isReceived: false,
     type: MessageType.AUDIO,
     status: "read",
+  }, {
+    id: "aud-2",
+    content: { audio: "https://sample-videos.com/audio/mp3/crowd-cheering.mp3", voice: true },
+    createdAt: createDate(0, 18, 50),
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.AUDIO,
+    status: "read",
   },
   // Document message
   {

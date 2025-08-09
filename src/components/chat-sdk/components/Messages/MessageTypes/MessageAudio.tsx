@@ -3,6 +3,7 @@ import { useAudioPlayer } from 'expo-audio';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { LayoutChangeEvent, PanResponder, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { AudioContent } from '../../../types/types';
+import { ensureExclusivePlayback, registerAudioInstance, unregisterAudioInstance } from './audioCoordinator';
 
 // Formats seconds to mm:ss
 function formatTime(totalSeconds: number): string {
@@ -24,6 +25,7 @@ type AnyPlayer = any;
 
 const MessageAudio = ({ content }: { content: AudioContent }) => {
   const player: AnyPlayer = useAudioPlayer(content.audio);
+  const instanceId = useMemo(() => Symbol('audio'), []);
 
   const [isPlaying, setIsPlaying] = useState<boolean>(false);
   const [duration, setDuration] = useState<MaybeNumber>(undefined);
@@ -31,12 +33,24 @@ const MessageAudio = ({ content }: { content: AudioContent }) => {
   const [trackWidth, setTrackWidth] = useState(0);
   const containerRef = useRef<View | null>(null);
 
+  // Register for exclusive playback coordination
+  useEffect(() => {
+    const pauseSelf = async () => {
+      try {
+        if (player?.pause) await player.pause();
+      } catch {}
+      setIsPlaying(false);
+    };
+    registerAudioInstance(instanceId, pauseSelf);
+    return () => unregisterAudioInstance(instanceId);
+  }, [instanceId, player]);
+
   // Sync from player if it exposes fields
   useEffect(() => {
     setIsPlaying(!!player?.playing || !!player?.isPlaying);
   }, [player?.playing, player?.isPlaying]);
 
-  // Poll playback position/duration periodically while mounted
+  // Poll playback position/duration periodically while mounted (rAF)
   useEffect(() => {
     let rafId: number;
 
@@ -93,10 +107,13 @@ const MessageAudio = ({ content }: { content: AudioContent }) => {
         setPosition(0);
       }
 
+      // Ensure other players are paused
+      await ensureExclusivePlayback(instanceId);
+
       await (player?.play?.() ?? player?.start?.());
       setIsPlaying(true);
     } catch {}
-  }, [isPlaying, player, duration, position]);
+  }, [isPlaying, player, duration, position, instanceId]);
 
   const handleSeekPercent = useCallback(
     async (p: number) => {
