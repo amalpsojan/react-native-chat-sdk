@@ -1,6 +1,7 @@
 import { FlashList } from '@shopify/flash-list';
 import React, { useCallback, useRef } from 'react';
 import { StyleSheet, View } from 'react-native';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import InputToolbar from './components/InputToolbar/InputToolbar';
 import MessagesList from './components/Messages/MessagesList';
 import { ChatWindowProps, Message } from './types';
@@ -27,7 +28,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   }, []);
 
   return (
-    <View style={styles.container}>
+    <GestureHandlerRootView style={styles.container}>
       <View style={styles.messagesContainer}>
         <MessagesList
           ref={listRef}
@@ -44,7 +45,7 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
         onSendMessage={onSendMessage}
         onScrollToBottom={scrollToBottom}
       />
-    </View>
+    </GestureHandlerRootView>
   );
 };
 

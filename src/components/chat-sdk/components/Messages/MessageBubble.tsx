@@ -2,7 +2,8 @@ import * as Clipboard from 'expo-clipboard';
 import * as FileSystem from 'expo-file-system';
 import * as Sharing from 'expo-sharing';
 import React, { memo, useCallback, useMemo, useState } from 'react';
-import { Alert, Platform, Pressable, StyleSheet, View } from 'react-native';
+import { Alert, Platform, StyleSheet, View } from 'react-native';
+import { LongPressGestureHandler } from 'react-native-gesture-handler';
 import { MessageType, Message as TMessage } from '../../types';
 import type { MessageRenderers } from './Message';
 import Message from './Message';
@@ -202,24 +203,21 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
         styles.messageRow,
         isFirstInGroup ? styles.messageRowFirst : styles.messageRowGrouped,
       ]}>
-        <Pressable
-          onLongPress={openMenu}
-          delayLongPress={300}
-          android_ripple={{ color: 'rgba(0,0,0,0.05)' }}
-          style={[
+        <LongPressGestureHandler minDurationMs={350} onActivated={openMenu}>
+          <View style={[
             styles.bubble,
             bubbleBaseStyle,
             bubbleGroupStyle,
-          ]}
-        >
-          <Message message={message} messageRenderers={messageRenderers} />
-          <MetadataContainer
-            isEdited={!!isEdited}
-            createdAt={createdAt}
-            isReceived={!!message.isReceived}
-            status={message.status}
-          />
-        </Pressable>
+          ]}>
+            <Message message={message} messageRenderers={messageRenderers} />
+            <MetadataContainer
+              isEdited={!!isEdited}
+              createdAt={createdAt}
+              isReceived={!!message.isReceived}
+              status={message.status}
+            />
+          </View>
+        </LongPressGestureHandler>
       </View>
     </>
   );
