@@ -1,10 +1,11 @@
 import MaterialCommunityIcons from "@expo/vector-icons/MaterialCommunityIcons";
 import { VideoView, useVideoPlayer } from "expo-video";
 import * as VideoThumbnails from "expo-video-thumbnails";
-import React, { Fragment, useEffect, useState } from "react";
+import React, { Fragment, useEffect, useRef, useState } from "react";
 import {
   Dimensions,
   ImageBackground,
+  LayoutChangeEvent,
   StyleSheet,
   Text,
   TouchableOpacity,
@@ -17,7 +18,9 @@ const { width: screenWidth, height: screenHeight } = Dimensions.get("window");
 
 interface InitialLayoutProps {
   content: VideoContent;
-  onPress: (event: any) => void;
+  onPress: () => void;
+  containerRef: React.RefObject<View | null>;
+  onLayout: (e: LayoutChangeEvent) => void;
 }
 
 interface PopupLayoutProps {
@@ -27,7 +30,12 @@ interface PopupLayoutProps {
 }
 
 // Component for the initial video layout (thumbnail in chat)
-const InitialLayout: React.FC<InitialLayoutProps> = ({ content, onPress }) => {
+const InitialLayout: React.FC<InitialLayoutProps> = ({
+  content,
+  onPress,
+  containerRef,
+  onLayout,
+}) => {
   const [image, setImage] = useState<string | null>(null);
 
   const generateThumbnail = async () => {
@@ -47,24 +55,25 @@ const InitialLayout: React.FC<InitialLayoutProps> = ({ content, onPress }) => {
 
   return (
     <TouchableOpacity onPress={onPress} activeOpacity={0.9}>
-      {image ? (
-        <ImageBackground
-          source={{ uri: image }}
-          style={styles.previewImage}
-          resizeMode="cover"
-        >
-          {/* play icon */}
-          <View style={styles.playIconContainer}>
-            <MaterialCommunityIcons name="play" size={40} color="white" />
-          </View>
-        </ImageBackground>
-      ) : (
-        <View style={styles.previewImage}>
-          <View style={styles.playIconContainer}>
-            <MaterialCommunityIcons name="play" size={40} color="white" />
-          </View>
+      <View
+        ref={containerRef}
+        style={styles.previewWrapper}
+        collapsable={false}
+        onLayout={onLayout}
+      >
+        {image ? (
+          <ImageBackground
+            source={{ uri: image }}
+            style={StyleSheet.absoluteFill}
+            resizeMode="cover"
+          />
+        ) : (
+          <View style={StyleSheet.absoluteFill} />
+        )}
+        <View style={styles.playIconContainer}>
+          <MaterialCommunityIcons name="play" size={40} color="white" />
         </View>
-      )}
+      </View>
       {content.caption && (
         <Text style={styles.caption} numberOfLines={2}>
           {content.caption}
@@ -81,17 +90,35 @@ const PopupLayout: React.FC<PopupLayoutProps> = ({
   onClose,
 }) => {
   const player = useVideoPlayer(content.video);
+  const playerRef = useRef<VideoView>(null);
+
+  useEffect(() => {
+    const enterFullscreen = () => {
+      if (playerRef?.current && playerRef?.current?.props?.player) {
+        playerRef?.current?.enterFullscreen();
+      }
+    };
+
+    setTimeout(() => {
+      enterFullscreen();
+    }, 1000);
+  }, []);
 
   return (
     <Fragment>
       <VideoView
+        ref={playerRef}
         player={player}
         style={[
           styles.fullscreenVideo,
           { width: layout.width, height: layout.height },
         ]}
-        nativeControls
         contentFit="contain"
+        allowsFullscreen={false}
+        onFullscreenEnter={() => {
+          playerRef?.current?.props?.player?.play();
+        }}
+        onFullscreenExit={onClose}
       />
     </Fragment>
   );
@@ -107,21 +134,55 @@ const MessageVideo = ({ content }: { content: VideoContent }) => {
     height: 0,
   });
 
-  const openFullscreen = (event: any) => {
-    // Get the video position for smooth transition
-    event.target.measure(
-      (
-        x: number,
-        y: number,
-        width: number,
-        height: number,
-        pageX: number,
-        pageY: number
-      ) => {
-        setVideoLayout({ x: pageX, y: pageY, width, height });
-        setIsFullscreen(true);
-      }
-    );
+  const previewRef = useRef<View | null>(null);
+  const previewSizeRef = useRef<{ width: number; height: number }>({
+    width: 200,
+    height: 200,
+  });
+
+  const handlePreviewLayout = (e: LayoutChangeEvent) => {
+    const { width, height } = e.nativeEvent.layout;
+    previewSizeRef.current = {
+      width: width || 200,
+      height: height || 200,
+    };
+  };
+
+  const openFullscreen = () => {
+    // Measure the preview to animate from its on-screen position
+    if (
+      previewRef.current &&
+      typeof previewRef.current.measureInWindow === "function"
+    ) {
+      previewRef.current.measureInWindow(
+        (pageX: number, pageY: number, _width: number, _height: number) => {
+          const { width, height } = previewSizeRef.current;
+          setVideoLayout({ x: pageX, y: pageY, width, height });
+          setIsFullscreen(true);
+        }
+      );
+    } else if (
+      previewRef.current &&
+      typeof previewRef.current.measure === "function"
+    ) {
+      previewRef.current.measure(
+        (
+          _x: number,
+          _y: number,
+          _width: number,
+          _height: number,
+          pageX: number,
+          pageY: number
+        ) => {
+          const { width, height } = previewSizeRef.current;
+          setVideoLayout({ x: pageX, y: pageY, width, height });
+          setIsFullscreen(true);
+        }
+      );
+    } else {
+      // Fallback: open centered if measurement is unavailable
+      setIsFullscreen(true);
+    }
   };
 
   const closeFullscreen = () => {
@@ -129,7 +190,12 @@ const MessageVideo = ({ content }: { content: VideoContent }) => {
   };
 
   const renderInitialLayout = () => (
-    <InitialLayout content={content} onPress={openFullscreen} />
+    <InitialLayout
+      content={content}
+      onPress={openFullscreen}
+      containerRef={previewRef}
+      onLayout={handlePreviewLayout}
+    />
   );
 
   const renderPopupLayout = (layout: { width: number; height: number }) => (
@@ -150,11 +216,12 @@ const MessageVideo = ({ content }: { content: VideoContent }) => {
 };
 
 const styles = StyleSheet.create({
-  previewImage: {
+  previewWrapper: {
     width: 200,
     height: 200,
     borderRadius: 8,
     marginBottom: 4,
+    overflow: "hidden",
     alignItems: "center",
     justifyContent: "center",
   },
