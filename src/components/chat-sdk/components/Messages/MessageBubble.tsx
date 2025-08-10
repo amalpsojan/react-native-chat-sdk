@@ -68,6 +68,10 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
 
   const bubbleBaseStyle = message.isReceived ? styles.bubbleLeft : styles.bubbleRight;
 
+  // Add minimum width for reply messages to prevent narrow bubbles
+  const hasReply = !!(message as any).referenceMessage;
+  const bubbleStyle = hasReply ? [bubbleBaseStyle, styles.bubbleWithReply] : bubbleBaseStyle;
+
   const createdAt = useMemo(() => {
     if (isEdited && message.editedAt) {
       return typeof message.editedAt === 'number' ? message.editedAt : new Date(message.editedAt).getTime();
@@ -225,7 +229,7 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
           <View
             style={[
               styles.bubble,
-              bubbleBaseStyle,
+              bubbleStyle,
               bubbleGroupStyle,
             ]}
           >
@@ -263,6 +267,9 @@ const styles = StyleSheet.create({
     maxWidth: '80%',
     paddingVertical: 6,
     paddingHorizontal: 10,
+  },
+  bubbleWithReply: {
+    minWidth: 200,
   },
   // Left side (received messages) - different border radius for grouping
   bubbleLeft: {

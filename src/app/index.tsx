@@ -21,7 +21,8 @@ export default function Chat() {
       content: partial.content || { text: "" },
       createdAt: now,
       status: "sent",
-    };
+      referenceMessage: partial.referenceMessage,
+    } as Message;
     setMessages((prev) => [newMsg, ...prev]);
   };
 
