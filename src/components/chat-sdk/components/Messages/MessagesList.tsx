@@ -47,6 +47,16 @@ const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
 
         return (
           <>
+            {showDateSeparator && (
+              <DateSeparator
+                timestamp={
+                  typeof item.createdAt === "number"
+                    ? item.createdAt
+                    : new Date(item.createdAt).getTime()
+                }
+              />
+            )}
+
             <MessageBubble
               message={item}
               prevMessage={prevMessage}
@@ -58,16 +68,6 @@ const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
               lookupMessageById={lookupMessageById}
               onPressReplyJump={jumpToMessage}
             />
-
-            {showDateSeparator && (
-              <DateSeparator
-                timestamp={
-                  typeof item.createdAt === "number"
-                    ? item.createdAt
-                    : new Date(item.createdAt).getTime()
-                }
-              />
-            )}
           </>
         );
       },

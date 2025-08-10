@@ -1,13 +1,23 @@
 import { ChatSDK } from "@/components"; // re-export of src/components/chat-sdk
 import { Message, MessageType } from "@/components/chat-sdk/types";
-import React, { useState } from "react";
+import { insertMessage, subscribeMessages } from "@/server/pocketbase";
+import { registerForPushNotificationsAsync } from "@/server/push";
+import React, { useEffect, useMemo, useState } from "react";
 import { View } from "react-native";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
-import { SafeAreaProvider, useSafeAreaInsets } from "react-native-safe-area-context";
+import {
+  SafeAreaProvider,
+  useSafeAreaInsets,
+} from "react-native-safe-area-context";
 
 function ChatScreen() {
   const insets = useSafeAreaInsets();
   const currentUserId = "user-1";
+  const conversationId = "demo-conv-1";
+  const deviceId = useMemo(
+    () => `dev-${Math.random().toString(36).slice(2, 10)}`,
+    []
+  );
 
   const initial: Message[] = [
     // Text (received)
@@ -17,120 +27,69 @@ function ChatScreen() {
       isReceived: true,
       type: MessageType.TEXT,
       content: { text: "Hey! 👋" },
-      createdAt: Date.now() - 60_000,
+      //Today
+      createdAt: Date.now(),
       status: "delivered",
     },
-    // Text (own)
     {
       id: "m-text-2",
-      from: currentUserId,
-      isReceived: false,
+      from: "user-2",
+      isReceived: true,
       type: MessageType.TEXT,
-      content: { text: "Hi there!" },
-      createdAt: Date.now() - 50_000,
-      status: "read",
-    },
-    // Image
-    {
-      id: "m-img",
-      from: "user-2",
-      isReceived: true,
-      type: MessageType.IMAGE,
-      content: {
-        image: "https://sample-videos.com/img/Sample-jpg-image-1mb.jpg",
-        caption: "A sample JPG image",
-      },
-      createdAt: Date.now() - 45_000,
-      status: "sent",
-    },
-    // Video
-    {
-      id: "m-vid",
-      from: "user-2",
-      isReceived: true,
-      type: MessageType.VIDEO,
-      content: {
-        video: "https://sample-videos.com/video321/mp4/720/big_buck_bunny_720p_1mb.mp4",
-        caption: "Sample MP4 video",
-      },
-      createdAt: Date.now() - 40_000,
+      content: { text: "Hello! 👋" },
+      //Today
+      createdAt: Date.now(),
       status: "delivered",
     },
-    // Audio (voice note)
     {
-      id: "m-aud",
-      from: currentUserId,
-      isReceived: false,
-      type: MessageType.AUDIO,
-      content: {
-        audio: "https://sample-videos.com/audio/mp3/crowd-cheering.mp3",
-        voice: true,
-      },
-      createdAt: Date.now() - 35_000,
-      status: "read",
-    },
-    // Document
-    {
-      id: "m-doc",
+      id: "m-text-3",
       from: "user-2",
       isReceived: true,
-      type: MessageType.DOCUMENT,
-      content: {
-        document: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf",
-        fileName: "dummy.pdf",
-        caption: "Sample PDF document",
-      },
-      createdAt: Date.now() - 30_000,
-      status: "sent",
-    },
-    // Sticker
-    {
-      id: "m-sticker",
-      from: currentUserId,
-      isReceived: false,
-      type: MessageType.STICKER,
-      content: {
-        sticker: "https://raw.githubusercontent.com/expo/expo/main/.github/resources/banner.png",
-      },
-      createdAt: Date.now() - 25_000,
-      status: "delivered",
-    },
-    // System (info)
-    {
-      id: "m-sys",
-      from: "system",
-      isReceived: true,
-      type: MessageType.SYSTEM,
-      content: { system: { type: "info", text: "This is an informational system message." } },
-      createdAt: Date.now() - 20_000,
-      status: "sent",
-    },
-    // Reply example (text replying to the image above)
-    {
-      id: "m-reply",
-      from: currentUserId,
-      isReceived: false,
       type: MessageType.TEXT,
-      content: { text: "Looks good to me." },
-      referenceMessage: {
-        referenceMessageId: "m-img",
-        type: MessageType.IMAGE,
-        content: {
-          image: "https://sample-videos.com/img/Sample-jpg-image-1mb.jpg",
-          caption: "A sample JPG image",
-        },
-      },
-      createdAt: Date.now() - 10_000,
-      status: "sent",
+      content: { text: "Yesterday" },
+      //Yesterday
+      createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).getTime(),
+      status: "delivered",
     },
   ];
 
   const [messages, setMessages] = useState<Message[]>(initial);
 
-  const handleSend = (partial: Partial<Message>) => {
+  // Register push token once
+  useEffect(() => {
+    registerForPushNotificationsAsync(currentUserId, deviceId).catch(() => {});
+  }, [currentUserId, deviceId]);
+
+  // Realtime subscription
+  useEffect(() => {
+    let cleanup: (() => void) | undefined;
+    (async () => {
+      cleanup = await subscribeMessages(conversationId, (rec) => {
+        const m: Message = {
+          id: rec.id,
+          from: rec.from_user,
+          isReceived: rec.from_user !== currentUserId,
+          type: rec.type as any as Message["type"],
+          content: rec.content,
+          createdAt: new Date(rec.created_at).getTime(),
+          status: rec.status as any,
+          referenceMessage: rec.reference_message,
+        } as Message;
+        setMessages((prev) => [m, ...prev]);
+      });
+    })();
+    return () => {
+      try {
+        cleanup?.();
+      } catch {}
+    };
+  }, [conversationId, currentUserId]);
+
+  const handleSend = async (partial: Partial<Message>) => {
     const now = Date.now();
-    const newMsg: Message = {
-      id: now.toString(),
+    // Optimistic UI
+    const optimistic: Message = {
+      id: `tmp-${now}`,
       from: currentUserId,
       isReceived: false,
       type: partial.type || MessageType.TEXT,
@@ -139,7 +98,19 @@ function ChatScreen() {
       status: "sent",
       referenceMessage: partial.referenceMessage,
     } as Message;
-    setMessages(prev => [newMsg, ...prev]);
+    setMessages((prev) => [optimistic, ...prev]);
+
+    // Persist to PocketBase (fire-and-forget minimal)
+    try {
+      await insertMessage({
+        conversation_id: conversationId,
+        from_user: currentUserId,
+        type: optimistic.type,
+        content: optimistic.content,
+        reference_message: optimistic.referenceMessage,
+        status: optimistic.status,
+      } as any);
+    } catch {}
   };
 
   return (
