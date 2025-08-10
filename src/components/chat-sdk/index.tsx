@@ -1,5 +1,5 @@
 import { FlashList } from '@shopify/flash-list';
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import InputToolbar from './components/InputToolbar/InputToolbar';
@@ -20,12 +20,21 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
   onEditMessage,
   onDeleteMessage,
   onRetryMessage,
+  onReplyMessage,
 }) => {
   const listRef = useRef<FlashList<Message>>(null);
+  const [replyTo, setReplyTo] = useState<Message | null>(null);
 
   const scrollToBottom = useCallback(() => {
     listRef.current?.scrollToOffset({ offset: 0, animated: true });
   }, []);
+
+  const handleReply = useCallback((m: Message) => {
+    setReplyTo(m);
+    if (onReplyMessage) onReplyMessage(m);
+  }, [onReplyMessage]);
+
+  const handleCancelReply = useCallback(() => setReplyTo(null), []);
 
   return (
     <GestureHandlerRootView style={styles.container}>
@@ -39,11 +48,14 @@ const ChatWindow: React.FC<ChatWindowProps> = ({
           onEditMessage={onEditMessage}
           onDeleteMessage={onDeleteMessage}
           onRetryMessage={onRetryMessage}
+          onReplyMessage={handleReply}
         />
       </View>
       <InputToolbar
         onSendMessage={onSendMessage}
         onScrollToBottom={scrollToBottom}
+        replyTo={replyTo}
+        onCancelReply={handleCancelReply}
       />
     </GestureHandlerRootView>
   );

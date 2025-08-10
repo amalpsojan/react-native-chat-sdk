@@ -1,15 +1,15 @@
 // Chat SDK minimal type definitions – version 0.1
 
-import type { MessageRenderers } from '../components/Messages/Message';
+import type { MessageRenderers } from "../components/Messages/Message";
 
 export enum MessageType {
-  TEXT = 'text',
-  IMAGE = 'image',
-  VIDEO = 'video',
-  AUDIO = 'audio',
-  DOCUMENT = 'document',
-  STICKER = 'sticker',
-  SYSTEM = 'system',
+  TEXT = "text",
+  IMAGE = "image",
+  VIDEO = "video",
+  AUDIO = "audio",
+  DOCUMENT = "document",
+  STICKER = "sticker",
+  SYSTEM = "system",
 }
 // System message content
 export interface SystemContent {
@@ -18,18 +18,18 @@ export interface SystemContent {
 
 // System message type info
 export interface SystemMessageInfo {
-  type: 'info'
+  type: "info";
   text: string;
 }
 
 export interface SystemMessageReminder {
-  type: 'reminder'
+  type: "reminder";
   title: string;
   description: string;
 }
 
 export interface SystemMessageMention {
-  type: 'mention'
+  type: "mention";
   title: string;
   description: string;
 }
@@ -69,6 +69,10 @@ export interface DocumentContent {
   caption: string;
 }
 
+export type MessageReference = Pick<Message, "type" | "content"> & {
+  referenceMessageId: string;
+};
+
 export interface MessageBase {
   id: string;
   from: string;
@@ -76,6 +80,7 @@ export interface MessageBase {
   createdAt: Date | string | number;
   editedAt?: Date | string | number;
   status?: MessageStatus;
+  referenceMessage?: MessageReference;
 }
 
 export type Message =
@@ -87,7 +92,12 @@ export type Message =
   | (MessageBase & { type: MessageType.AUDIO; content: AudioContent })
   | (MessageBase & { type: MessageType.DOCUMENT; content: DocumentContent });
 
-export type MessageStatus = 'pending' | 'sent' | 'delivered' | 'read' | 'failed';
+export type MessageStatus =
+  | "pending"
+  | "sent"
+  | "delivered"
+  | "read"
+  | "failed";
 
 export interface ChatWindowProps {
   messages: Message[];
@@ -98,5 +108,6 @@ export interface ChatWindowProps {
   onRetryMessage?: (message: Message) => void;
   onLoadEarlier?: () => void;
   messageRenderers?: MessageRenderers;
+  onReplyMessage?: (message: Message) => void;
   // Later: typingIndicator, theme, customRenderers, etc.
-} 
+}

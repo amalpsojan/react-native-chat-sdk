@@ -10,6 +10,36 @@ const createDate = (daysAgo: number, hours: number = 12, minutes: number = 0) =>
 
 // New messages are at the top of the list
 export const messages: Message[] = [
+  // Reply examples using referenceMessage snapshot
+  {
+    id: "r-1",
+    content: { text: "Looks good to me." },
+    createdAt: createDate(0, 19, 20),
+    from: "user-1",
+    isReceived: false,
+    type: MessageType.TEXT,
+    status: "sent",
+    referenceMessage: {
+      referenceMessageId: "img-1",
+      type: MessageType.IMAGE,
+      content: { image: "https://sample-videos.com/img/Sample-jpg-image-1mb.jpg", caption: "A sample JPG image" },
+    },
+  },
+  {
+    id: "r-2",
+    content: { text: "On it." },
+    createdAt: createDate(0, 19, 18),
+    from: "user-2",
+    isReceived: true,
+    type: MessageType.TEXT,
+    status: "delivered",
+    referenceMessage: {
+      referenceMessageId: "doc-1",
+      type: MessageType.DOCUMENT,
+      content: { document: "https://www.w3.org/WAI/ER/tests/xhtml/testfiles/resources/pdf/dummy.pdf", fileName: "dummy.pdf", caption: "Sample PDF document" },
+    },
+  },
+
   // Image message
   {
     id: "img-1",
@@ -203,7 +233,7 @@ export const messages: Message[] = [
   },
   {
     id: "11",
-    content: { text: "��" },
+    content: { text: "" },
     createdAt: createDate(0, 14, 10), // Today 2:10 PM
     from: "user-1",
     isReceived: false,

@@ -19,6 +19,9 @@ interface MessageBubbleProps {
   onEditMessage?: (message: TMessage) => void;
   onDeleteMessageId?: (messageId: string) => void;
   onRetryMessage?: (message: TMessage) => void;
+  onReplyMessage?: (message: TMessage) => void;
+  lookupMessageById?: (id: string) => TMessage | undefined;
+  onPressReplyJump?: (messageId: string) => void;
 }
 
 /**
@@ -27,7 +30,7 @@ interface MessageBubbleProps {
  * Handles bubble styling based on sender (left/right alignment)
  * and groups consecutive messages from the same sender
  */
-const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderers, onEditMessage, onDeleteMessageId, onRetryMessage }: MessageBubbleProps) => {
+const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderers, onEditMessage, onDeleteMessageId, onRetryMessage, onReplyMessage, lookupMessageById, onPressReplyJump }: MessageBubbleProps) => {
   // Check if message has been edited
   const isEdited = !!message.editedAt;
 
@@ -102,6 +105,11 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
 
   const buildActions = useCallback((): ActionItem[] => {
     const actions: ActionItem[] = [];
+
+    // Reply (all types)
+    if (onReplyMessage) {
+      actions.push({ key: 'reply', label: 'Reply', icon: 'reply', onPress: () => onReplyMessage(message) });
+    }
 
     // Copy (text only)
     if (message.type === MessageType.TEXT) {
@@ -183,7 +191,7 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
     }
 
     return actions;
-  }, [message, onEditMessage, onDeleteMessageId, onRetryMessage, handleDownload, handleShare]);
+  }, [message, onEditMessage, onDeleteMessageId, onRetryMessage, onReplyMessage, handleDownload, handleShare]);
 
   // Long press gesture via new API
   const longPressGesture = useMemo(
@@ -221,7 +229,9 @@ const MessageBubble = memo(({ message, prevMessage, nextMessage, messageRenderer
               bubbleGroupStyle,
             ]}
           >
-            <Message message={message} messageRenderers={messageRenderers} />
+            <Message message={message} messageRenderers={messageRenderers} onPressReplyJump={onPressReplyJump}
+            lookupMessageById={lookupMessageById}
+            />
             <MetadataContainer
               isEdited={!!isEdited}
               createdAt={createdAt}

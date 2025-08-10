@@ -15,6 +15,7 @@ interface MessagesListProps {
   onEditMessage?: (messageId: string, newText: string) => void;
   onDeleteMessage?: (messageId: string) => void;
   onRetryMessage?: (message: Message) => void;
+  onReplyMessage?: (message: Message) => void;
 }
 
 /**
@@ -23,7 +24,16 @@ interface MessagesListProps {
  * Handles message rendering, scrolling, and loading earlier messages
  */
 const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
-  ({ messages, currentUserId, onLoadEarlier, messageRenderers, onEditMessage, onDeleteMessage, onRetryMessage }, ref) => {
+  ({ messages, currentUserId, onLoadEarlier, messageRenderers, onEditMessage, onDeleteMessage, onRetryMessage, onReplyMessage }, ref) => {
+    const lookupMessageById = useCallback((id: string) => messages.find(m => m.id === id), [messages]);
+    const jumpToMessage = useCallback((id: string) => {
+      const index = messages.findIndex(m => m.id === id);
+      if (index >= 0) {
+        const list = (ref as any)?.current as FlashList<Message> | undefined;
+        list?.scrollToIndex({ index, animated: true, viewPosition: 0.5 });
+      }
+    }, [messages, ref]);
+
     const renderItem = useCallback(
       ({ item, index }: { item: Message; index: number }) => {
         // Get adjacent messages for grouping logic
@@ -44,6 +54,9 @@ const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
               messageRenderers={messageRenderers}
               onDeleteMessageId={onDeleteMessage}
               onRetryMessage={onRetryMessage}
+              onReplyMessage={onReplyMessage}
+              lookupMessageById={lookupMessageById}
+              onPressReplyJump={jumpToMessage}
             />
 
             {showDateSeparator && (
@@ -58,7 +71,7 @@ const MessagesList = React.forwardRef<FlashList<Message>, MessagesListProps>(
           </>
         );
       },
-      [messages, currentUserId, messageRenderers, onDeleteMessage, onRetryMessage]
+      [messages, currentUserId, messageRenderers, onDeleteMessage, onRetryMessage, onReplyMessage, lookupMessageById, jumpToMessage]
     );
 
     const keyExtractor = useCallback((item: Message) => item.id, []);

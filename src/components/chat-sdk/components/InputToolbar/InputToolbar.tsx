@@ -3,10 +3,13 @@ import { Keyboard, Pressable, StyleSheet, Text, TextInput, View } from "react-na
 import { useReanimatedKeyboardAnimation } from "react-native-keyboard-controller";
 import Animated, { useAnimatedStyle } from "react-native-reanimated";
 import { Message, MessageType, TextContent } from "../../types";
+import ReplyPreview from "./ReplyPreview";
 
 interface InputToolbarProps {
   onSendMessage: (message: Partial<Message>) => void;
   onScrollToBottom?: () => void;
+  replyTo?: Message | null;
+  onCancelReply?: () => void;
 }
 
 /**
@@ -17,6 +20,8 @@ interface InputToolbarProps {
 const InputToolbar: React.FC<InputToolbarProps> = ({
   onSendMessage,
   onScrollToBottom,
+  replyTo,
+  onCancelReply,
 }) => {
   const [draft, setDraft] = useState("");
   const inputRef = React.useRef<TextInput>(null);
@@ -34,9 +39,17 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
 
     onSendMessage({ 
       type: MessageType.TEXT, 
-      content: { text: trimmed } as TextContent 
+      content: { text: trimmed } as TextContent,
+      referenceMessage: replyTo
+        ? {
+            referenceMessageId: replyTo.id,
+            type: replyTo.type,
+            content: (replyTo as any).content as any, 
+          }
+        : undefined,
     });
     setDraft("");
+    if (onCancelReply) onCancelReply();
     
     // Dismiss keyboard
     Keyboard.dismiss();
@@ -45,7 +58,7 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
     if (onScrollToBottom) {
       setTimeout(onScrollToBottom, 50);
     }
-  }, [draft, onSendMessage, onScrollToBottom]);
+  }, [draft, onSendMessage, onScrollToBottom, onCancelReply, replyTo]);
 
   return (
     <Animated.View
@@ -54,6 +67,9 @@ const InputToolbar: React.FC<InputToolbarProps> = ({
         animatedStyle,
       ]}
     >
+      {!!replyTo && (
+        <ReplyPreview message={replyTo} onCancel={onCancelReply || (() => {})} />
+      )}
       <View style={styles.inputBar}>
         <TextInput
           ref={inputRef}
