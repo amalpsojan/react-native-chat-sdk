@@ -42,7 +42,8 @@
         {
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
-      ]
+      ],
+      "./plugins/with-watermelondb-simdjson.js"
     ],
     "experiments": {
       "typedRoutes": true
