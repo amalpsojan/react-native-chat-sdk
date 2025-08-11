@@ -1,0 +1,16 @@
+{
+  "name": "chatapp-backend-pocketbase",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "pb:serve": "dotenv -e .env -- node scripts/serve.mjs"
+  },
+  "dependencies": {
+    "dotenv": "^16.4.5",
+    "pocketbase": "^0.21.2"
+  },
+  "devDependencies": {
+    "dotenv-cli": "^7.4.1"
+  }
+}
