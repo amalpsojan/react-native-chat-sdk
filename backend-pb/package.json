@@ -4,7 +4,9 @@
   "version": "1.0.0",
   "type": "module",
   "scripts": {
-    "pb:serve": "dotenv -e .env -- node scripts/serve.mjs"
+    "pb:serve": "dotenv -e .env -- node scripts/serve.mjs",
+    "init:schema": "dotenv -e .env -- node scripts/initPocketBase.mjs",
+    "seed": "dotenv -e .env -- node scripts/seed.mjs"
   },
   "dependencies": {
     "dotenv": "^16.4.5",
