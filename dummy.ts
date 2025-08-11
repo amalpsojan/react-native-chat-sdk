@@ -2,7 +2,7 @@ import { Message, MessageType } from "@/components/chat-sdk/types";
 
 // Helper function to create dates for different days
 const createDate = (daysAgo: number, hours: number = 12, minutes: number = 0) => {
-  const date = new Date();
+  const date = new Date("2025-07-11 12:00:00");
   date.setDate(date.getDate() - daysAgo);
   date.setHours(hours, minutes, 0, 0);
   return date.getTime();

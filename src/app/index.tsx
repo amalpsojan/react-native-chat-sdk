@@ -4,7 +4,6 @@ import { useMessageRepository } from "@/data/dal/useMessageRepository";
 import React, { useEffect, useState } from "react";
 import { View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
-import { messages as dummyMessages } from "../../dummy";
 
 export default function Chat() {
   const insets = useSafeAreaInsets();
@@ -13,15 +12,14 @@ export default function Chat() {
 
   const [messages, setMessages] = useState<Message[]>([]);
 
-  const repo = useMessageRepository();
+  const repo = useMessageRepository(roomId);
 
   useEffect(() => {
-    const unsub = repo.subscribe(roomId, (msgs) =>
-      setMessages(msgs.map((m) => ({ ...m, isReceived: m.from !== currentUserId })))
-    );
-
-    // seed with dummy messages for local testing
-    repo.upsertMessages(roomId, dummyMessages);
+    const unsub = repo.subscribe(roomId, (msgs) => {
+      // eslint-disable-next-line no-console
+      console.log(`[ui] received ${msgs.length} messages`);
+      setMessages(msgs.map((m) => ({ ...m, isReceived: m.from !== currentUserId })));
+    });
 
     return () => {
       unsub();
