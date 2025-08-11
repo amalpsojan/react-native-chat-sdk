@@ -33,8 +33,6 @@ export class SyncService {
               (rec as any).refContent = m.referenceMessage.content;
             }
           });
-          // eslint-disable-next-line no-console
-          console.log(`[sync] updated id=${m.id}`);
         } else {
           await collection.create((rec) => {
             rec._raw.id = m.id;
@@ -52,18 +50,12 @@ export class SyncService {
               (rec as any).refContent = m.referenceMessage.content;
             }
           });
-          // eslint-disable-next-line no-console
-          console.log(`[sync] created id=${m.id}`);
         }
       }
     });
 
     const newestTs = Math.max(
-      ...remote.map((m) => {
-        const created = typeof m.createdAt === 'number' ? m.createdAt : new Date(m.createdAt).getTime();
-        const edited = m.editedAt ? (typeof m.editedAt === 'number' ? m.editedAt : new Date(m.editedAt).getTime()) : 0;
-        return Math.max(created, edited);
-      })
+      ...remote.map((m) => (typeof m.createdAt === 'number' ? m.createdAt : new Date(m.createdAt).getTime()))
     );
     this.lastPulledAtPerRoom.set(roomId, newestTs);
     return newestTs;

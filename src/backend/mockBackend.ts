@@ -11,27 +11,15 @@ class MockBackend {
 
   async getMessages(roomId: string, since?: number): Promise<Message[]> {
     const list = this.roomIdToMessages.get(roomId) || [];
-    const filtered = since
-      ? list.filter((m) => {
-          const created = typeof m.createdAt === 'number' ? m.createdAt : new Date(m.createdAt).getTime();
-          const edited = m.editedAt
-            ? typeof m.editedAt === 'number'
-              ? m.editedAt
-              : new Date(m.editedAt).getTime()
-            : 0;
-          const lastModified = Math.max(created, edited);
-          return lastModified > since;
-        })
-      : list;
+    const filtered = since ? list.filter((m) => {
+      const ts = typeof m.createdAt === 'number' ? m.createdAt : new Date(m.createdAt).getTime();
+      return ts > since;
+    }) : list;
     // Return newest first
     return [...filtered].sort((a, b) => {
-      const aCreated = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime();
-      const aEdited = a.editedAt ? (typeof a.editedAt === 'number' ? a.editedAt : new Date(a.editedAt).getTime()) : 0;
-      const bCreated = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
-      const bEdited = b.editedAt ? (typeof b.editedAt === 'number' ? b.editedAt : new Date(b.editedAt).getTime()) : 0;
-      const aMod = Math.max(aCreated, aEdited);
-      const bMod = Math.max(bCreated, bEdited);
-      return bMod - aMod;
+      const at = typeof a.createdAt === 'number' ? a.createdAt : new Date(a.createdAt).getTime();
+      const bt = typeof b.createdAt === 'number' ? b.createdAt : new Date(b.createdAt).getTime();
+      return bt - at;
     });
   }
 
@@ -50,8 +38,6 @@ class MockBackend {
     } as Message;
     const list = this.roomIdToMessages.get(roomId) || [];
     this.roomIdToMessages.set(roomId, [message, ...list]);
-    // eslint-disable-next-line no-console
-    console.log(`[mockBackend] createMessage room=${roomId} id=${message.id}`);
     return message;
   }
 
@@ -62,8 +48,6 @@ class MockBackend {
       const updated = [...list];
       updated[idx] = { ...updated[idx], status } as Message;
       this.roomIdToMessages.set(roomId, updated);
-      // eslint-disable-next-line no-console
-      console.log(`[mockBackend] updateStatus room=${roomId} id=${messageId} status=${status}`);
     }
   }
 }

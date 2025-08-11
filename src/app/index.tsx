@@ -15,11 +15,9 @@ export default function Chat() {
   const repo = useMessageRepository(roomId);
 
   useEffect(() => {
-    const unsub = repo.subscribe(roomId, (msgs) => {
-      // eslint-disable-next-line no-console
-      console.log(`[ui] received ${msgs.length} messages`);
-      setMessages(msgs.map((m) => ({ ...m, isReceived: m.from !== currentUserId })));
-    });
+    const unsub = repo.subscribe(roomId, (msgs) =>
+      setMessages(msgs.map((m) => ({ ...m, isReceived: m.from !== currentUserId })))
+    );
 
     return () => {
       unsub();

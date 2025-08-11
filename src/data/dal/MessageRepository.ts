@@ -6,5 +6,4 @@ export interface MessageRepository {
   addMessage(roomId: string, message: Message): Promise<void>;
   upsertMessages(roomId: string, messages: Message[]): Promise<void>;
   updateStatus(messageId: string, status: MessageStatus): Promise<void>;
-  syncNow?(roomId: string): Promise<void>;
 }
