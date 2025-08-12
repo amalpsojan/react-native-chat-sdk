@@ -1,5 +1,5 @@
-import type { Message } from '@/components/chat-sdk/types';
-import type { PBClient } from './pbClient';
+import type { Message } from "@/components/chat-sdk/types";
+import type { PBClient } from "./pbClient";
 
 type ListResponse<T> = {
   page: number;
@@ -14,9 +14,9 @@ export async function loadHistory(
   limit = 50
 ): Promise<Message[]> {
   await pb.ensureAuth();
-  const res = await pb.sdk.collection('messages').getList(1, limit, {
-    query: { filter: `roomId = "${roomId}"`, sort: 'createdAtMs' },
-  }) as unknown as ListResponse<any>;
+  const res = (await pb.sdk.collection("messages").getList(1, limit, {
+    query: { filter: `roomId = "${roomId}"`, sort: "createdAtMs" },
+  })) as unknown as ListResponse<any>;
 
   const user = pb.sdk.authStore.record as any;
   const userId = user?.id;
@@ -41,24 +41,24 @@ export async function sendText(
   const user = pb.sdk.authStore.record as any;
   const userId = user?.id;
   if (!userId) {
-    console.error('[chat-backend] missing auth record; abort send');
-    throw new Error('Not authenticated');
+    console.error("[chat-backend] missing auth record; abort send");
+    throw new Error("Not authenticated");
   }
   const payload = {
     roomId,
     from: userId,
-    type: 'text',
+    type: "text",
     content: { text },
     createdAtMs: Date.now(),
-    status: 'sent',
+    status: "sent",
   } as any;
-  console.log('[chat-backend] send payload', payload);
+  console.log("[chat-backend] send payload", payload);
   try {
-    await pb.sdk.collection('messages').create(payload);
+    await pb.sdk.collection("messages").create(payload);
   } catch (e: any) {
     const details = (e?.data?.data || e?.response?.data || e) as any;
-    const msg = e?.data?.message || e?.message || 'send failed';
-    console.error('[chat-backend] send error', msg, details);
+    const msg = e?.data?.message || e?.message || "send failed";
+    console.error("[chat-backend] send error", msg, details);
     throw e;
   }
 }
@@ -67,8 +67,8 @@ export async function sendText(
 export async function sendMessage(
   pb: PBClient,
   roomId: string,
-  input: Pick<Message, 'type' | 'content'> & {
-    status?: Message['status'];
+  input: Pick<Message, "type" | "content"> & {
+    status?: Message["status"];
     editedAtMs?: number;
     refMessageId?: string;
     refType?: string;
@@ -78,21 +78,28 @@ export async function sendMessage(
   await pb.ensureAuth();
   const user = pb.sdk.authStore.record as any;
   const userId = user?.id;
-  if (!userId) throw new Error('Not authenticated');
+  if (!userId) throw new Error("Not authenticated");
   const payload: any = {
     roomId,
     from: userId,
     type: input.type,
     content: input.content,
     createdAtMs: Date.now(),
-    status: input.status ?? 'sent',
+    status: input.status ?? "sent",
   };
   if (input.editedAtMs) payload.editedAtMs = input.editedAtMs;
   if (input.refMessageId) payload.refMessageId = input.refMessageId;
   if (input.refType) payload.refType = input.refType;
-  if (typeof input.refContent !== 'undefined') payload.refContent = input.refContent;
-  console.log('[chat-backend] send payload', payload);
-  await pb.sdk.collection('messages').create(payload);
+  if (typeof input.refContent !== "undefined")
+    payload.refContent = input.refContent;
+  console.log("[chat-backend] send payload", payload);
+  await pb.sdk
+    .collection("messages")
+    .create(payload)
+    .catch((e: any) => {
+      console.error("[chat-backend] send error", e);
+      throw e;
+    });
 }
 
 export async function subscribeMessages(
@@ -103,10 +110,10 @@ export async function subscribeMessages(
   await pb.ensureAuth();
   const user = pb.sdk.authStore.record as any;
   const userId = user?.id;
-  return pb.sdk.collection('messages').subscribe('*', (e: any) => {
+  return pb.sdk.collection("messages").subscribe("*", (e: any) => {
     const rec = e?.record;
     if (!rec || rec.roomId !== roomId) return;
-    if (e.action === 'create') {
+    if (e.action === "create") {
       onCreate({
         id: rec.id,
         from: rec.from,
@@ -120,5 +127,3 @@ export async function subscribeMessages(
     }
   });
 }
-
-

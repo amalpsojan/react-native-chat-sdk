@@ -1,8 +1,8 @@
 import { useChatBackend } from "@/sdk/chat-sdk-backend";
 import { useAuthStore } from "@/state/auth";
-import { useRouter } from "expo-router";
-import React, { useEffect, useState } from "react";
-import { ActivityIndicator, Alert, FlatList, Text, TouchableOpacity, View } from "react-native";
+import { useNavigation, useRouter } from "expo-router";
+import React, { useEffect, useLayoutEffect, useState } from "react";
+import { ActivityIndicator, Alert, FlatList, Pressable, Text, TouchableOpacity, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TOKEN_KEY = "pb_user_token";
@@ -12,6 +12,7 @@ type Room = { id: string; title: string };
 export default function RoomsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
+  const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
   const { rooms, roomsLoading, refreshRooms } = useChatBackend();
   const token = useAuthStore((s) => s.token);
@@ -32,6 +33,16 @@ export default function RoomsScreen() {
       }
     })();
   }, [router]);
+
+  useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <Pressable onPress={() => router.push("/create-room")} style={{ paddingHorizontal: 12, paddingVertical: 6 }}>
+          <Text style={{ color: "#007AFF", fontWeight: "600" }}>+ Create</Text>
+        </Pressable>
+      ),
+    });
+  }, [navigation, router]);
 
   const onSelect = (room: Room) => {
     router.push({ pathname: "/chat", params: { roomId: room.id } });
