@@ -1,3 +1,6 @@
+if (__DEV__) {
+  require("../../ReactotronConfig");
+}
 import { PBProvider } from "@/sdk/chat-sdk-backend";
 import { useAuthStore } from "@/state/auth";
 import { Stack, useRouter } from "expo-router";
@@ -17,7 +20,7 @@ export default function RootLayout() {
       token={token}
       onAuthInvalid={() => {
         clear();
-        router.replace('/prelogin');
+        router.replace("/prelogin");
       }}
     >
       <KeyboardProvider>

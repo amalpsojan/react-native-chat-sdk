@@ -10,7 +10,7 @@ export default function LoginScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ identifier?: string }>();
   const [email, setEmail] = useState(params.identifier || "");
-  const [password, setPassword] = useState("");
+  const [password, setPassword] = useState("secret123");
   const [loading, setLoading] = useState(false);
   const setToken = useAuthStore((s) => s.setToken);
 

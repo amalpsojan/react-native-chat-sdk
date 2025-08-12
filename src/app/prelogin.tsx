@@ -1,4 +1,4 @@
-import { userExists } from '@/api/account';
+import { preLogin } from '@/api/account';
 import { useRouter } from 'expo-router';
 import React, { useState } from 'react';
 import { Alert, Button, Text, TextInput, View } from 'react-native';
@@ -7,7 +7,7 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 export default function PreloginScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [identifier, setIdentifier] = useState('');
+  const [identifier, setIdentifier] = useState('alice@example.com');
   const [loading, setLoading] = useState(false);
 
   const onContinue = async () => {
@@ -15,7 +15,7 @@ export default function PreloginScreen() {
     if (!value) return Alert.alert('Missing', 'Enter username or email');
     setLoading(true);
     try {
-      const exists = await userExists(value);
+      const exists = await preLogin(value);
       if (exists) router.replace({ pathname: '/login', params: { identifier: value } });
       else router.replace({ pathname: '/register', params: { identifier: value } });
     } catch (e: any) {
