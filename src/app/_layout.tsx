@@ -17,14 +17,17 @@ export default function RootLayout() {
       token={token}
       onAuthInvalid={() => {
         clear();
-        router.replace('/login');
+        router.replace('/prelogin');
       }}
     >
       <KeyboardProvider>
         <Stack>
           <Stack.Screen name="index" options={{ headerShown: false }} />
+          <Stack.Screen name="prelogin" options={{ title: "Welcome" }} />
           <Stack.Screen name="login" options={{ title: "Login" }} />
+          <Stack.Screen name="register" options={{ title: "Register" }} />
           <Stack.Screen name="rooms" options={{ title: "Rooms" }} />
+          <Stack.Screen name="create-room" options={{ title: "Create Room" }} />
           <Stack.Screen name="chat" options={{ title: "Chat" }} />
         </Stack>
       </KeyboardProvider>

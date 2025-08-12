@@ -34,3 +34,26 @@ export const refreshToken = async (token: string): Promise<string> => {
   );
   return data?.token;
 };
+
+type ListResponse<T> = {
+  page: number;
+  perPage: number;
+  totalItems: number;
+  items: T[];
+};
+
+export async function userExists(identifier: string): Promise<boolean> {
+  const isEmail = identifier.includes("@");
+  const value = identifier.trim();
+  const filter = isEmail ? `email = "${value}"` : `username = "${value}"`;
+  try {
+    const { data } = await http.get<ListResponse<any>>(
+      "/api/collections/users/records",
+      { params: { filter, page: 1, perPage: 1, skipTotal: 1 } }
+    );
+    return Array.isArray(data?.items) && data.items.length > 0;
+  } catch (_) {
+    // If server disallows public listing, fallback to unknown -> let app route to login
+    return true;
+  }
+}

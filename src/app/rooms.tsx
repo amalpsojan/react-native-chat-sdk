@@ -21,7 +21,7 @@ export default function RoomsScreen() {
       setLoading(true);
       try {
         if (!token) {
-          router.replace("/login");
+          router.replace("/prelogin");
           return;
         }
         await refreshRooms();

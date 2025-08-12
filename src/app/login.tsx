@@ -1,6 +1,6 @@
 import { login as apiLogin } from "@/api/account";
 import { useAuthStore } from "@/state/auth";
-import { useRouter } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useState } from "react";
 import { Alert, Button, Text, TextInput, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
@@ -8,8 +8,9 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 export default function LoginScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [email, setEmail] = useState("alice@example.com");
-  const [password, setPassword] = useState("secret123");
+  const params = useLocalSearchParams<{ identifier?: string }>();
+  const [email, setEmail] = useState(params.identifier || "");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const setToken = useAuthStore((s) => s.setToken);
 
@@ -43,7 +44,9 @@ export default function LoginScreen() {
         autoCapitalize="none"
         autoCorrect={false}
         keyboardType="email-address"
-        style={{ borderWidth: 1, borderColor: "#ccc", borderRadius: 8, padding: 12, marginBottom: 12 }}
+        editable={false}
+        selectTextOnFocus={false}
+        style={{ borderWidth: 1, borderColor: "#ccc", backgroundColor: "#f4f4f5", borderRadius: 8, padding: 12, marginBottom: 12, color: "#888" }}
       />
 
       <Text>Password</Text>
@@ -55,6 +58,8 @@ export default function LoginScreen() {
       />
 
       <Button title={loading ? "Logging in..." : "Login"} onPress={onLogin} disabled={loading} />
+      <View style={{ height: 12 }} />
+      <Button title="Change" onPress={() => router.replace('/prelogin')} />
     </View>
   );
 }
