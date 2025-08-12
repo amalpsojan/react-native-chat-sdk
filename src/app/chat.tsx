@@ -1,6 +1,6 @@
 import { ChatSDK } from "@/components";
 import type { Message } from "@/components/chat-sdk/types";
-import { usePocketBaseChat } from "@/hooks/usePocketBaseChat";
+import { useChatBackend } from "@/sdk/chat-sdk-backend";
 import { useAuthStore } from "@/state/auth";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import React, { useEffect } from "react";
@@ -17,9 +17,7 @@ export default function ChatScreen() {
     if (!token) router.replace('/login');
   }, [token, router]);
 
-  const { messages, currentUserId, sendText } = usePocketBaseChat({
-    baseUrl: "http://127.0.0.1:8090",
-    token,
+  const { messages, currentUserId, sendText } = useChatBackend({
     roomId: (roomId as string) || "",
     historyLimit: 50,
   });

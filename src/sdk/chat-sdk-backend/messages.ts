@@ -1,0 +1,79 @@
+import type { Message } from '@/components/chat-sdk/types';
+import type { PBClient } from './pbClient';
+
+type ListResponse<T> = {
+  page: number;
+  perPage: number;
+  totalItems: number;
+  items: any[];
+};
+
+export async function loadHistory(
+  pb: PBClient,
+  roomId: string,
+  limit = 50
+): Promise<Message[]> {
+  await pb.ensureAuth();
+  const res = await pb.sdk.collection('messages').getList(1, limit, {
+    query: { filter: `roomId = "${roomId}"`, sort: 'createdAtMs' },
+  }) as unknown as ListResponse<any>;
+
+  const user = pb.sdk.authStore.record as any;
+  const userId = user?.username || user?.email || user?.id;
+  return res.items.map((r: any) => ({
+    id: r.id,
+    from: r.from,
+    isReceived: r.from !== userId,
+    createdAt: r.createdAtMs ?? Date.now(),
+    editedAt: r.editedAtMs,
+    status: r.status,
+    type: r.type,
+    content: r.content,
+  }));
+}
+
+export async function sendText(
+  pb: PBClient,
+  roomId: string,
+  text: string
+): Promise<void> {
+  await pb.ensureAuth();
+  const user = pb.sdk.authStore.record as any;
+  const userId = user?.username || user?.email || user?.id;
+  await pb.sdk.collection('messages').create({
+    roomId,
+    from: userId,
+    type: 'text',
+    content: { text },
+    createdAtMs: Date.now(),
+    status: 'sent',
+  });
+}
+
+export async function subscribeMessages(
+  pb: PBClient,
+  roomId: string,
+  onCreate: (m: Message) => void
+): Promise<() => Promise<void>> {
+  await pb.ensureAuth();
+  const user = pb.sdk.authStore.record as any;
+  const userId = user?.username || user?.email || user?.id;
+  return pb.sdk.collection('messages').subscribe('*', (e: any) => {
+    const rec = e?.record;
+    if (!rec || rec.roomId !== roomId) return;
+    if (e.action === 'create') {
+      onCreate({
+        id: rec.id,
+        from: rec.from,
+        isReceived: rec.from !== userId,
+        createdAt: rec.createdAtMs ?? Date.now(),
+        editedAt: rec.editedAtMs,
+        status: rec.status,
+        type: rec.type,
+        content: rec.content,
+      });
+    }
+  });
+}
+
+

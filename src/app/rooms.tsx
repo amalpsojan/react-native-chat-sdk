@@ -1,4 +1,4 @@
-import { listRooms } from "@/api/rooms";
+import { useChatBackend } from "@/sdk/chat-sdk-backend";
 import { useAuthStore } from "@/state/auth";
 import { useRouter } from "expo-router";
 import React, { useEffect, useState } from "react";
@@ -12,8 +12,8 @@ type Room = { id: string; title: string };
 export default function RoomsScreen() {
   const insets = useSafeAreaInsets();
   const router = useRouter();
-  const [rooms, setRooms] = useState<Room[]>([]);
   const [loading, setLoading] = useState(true);
+  const { rooms, roomsLoading, refreshRooms } = useChatBackend();
   const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
@@ -24,9 +24,7 @@ export default function RoomsScreen() {
           router.replace("/login");
           return;
         }
-        // axios header already set by store; just call API
-        const items = await listRooms(1, 50);
-        setRooms(items);
+        await refreshRooms();
       } catch (e: any) {
         Alert.alert("Error", e?.message || "Failed to load rooms");
       } finally {
