@@ -1,8 +1,8 @@
-import React from "react";
-import { PBProvider } from "@/sdk/chat-sdk-backend";
-import { useAuthStore } from "@/state/auth";
 import { ClientConfig } from "@/config";
+import { PBProvider } from "@/sdk/chat-sdk-backend-client";
+import { useAuthStore } from "@/state/auth";
 import { Stack, useRouter } from "expo-router";
+import React from "react";
 export default function MainLayout() {
   const token = useAuthStore((s) => s.token);
   const clear = useAuthStore((s) => s.clear);

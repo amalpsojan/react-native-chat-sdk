@@ -1,4 +1,4 @@
-import { useChatBackend } from "@/sdk/chat-sdk-backend";
+import { useChatBackend } from "@/sdk/chat-sdk-backend-client";
 import { useAuthStore } from "@/state/auth";
 import { useNavigation, useRouter } from "expo-router";
 import React, { useEffect, useLayoutEffect, useState } from "react";
