@@ -13,9 +13,10 @@ type PBProviderProps = {
   baseUrl: string;
   token?: string;
   children: React.ReactNode;
+  onAuthInvalid?: () => void;
 };
 
-export function PBProvider({ baseUrl, token, children }: PBProviderProps) {
+export function PBProvider({ baseUrl, token, children, onAuthInvalid }: PBProviderProps) {
   const pb = useMemo(() => new PBClient(baseUrl), [baseUrl]);
   const [isReady, setIsReady] = useState(false);
   const [error, setError] = useState<unknown | null>(null);
@@ -34,10 +35,17 @@ export function PBProvider({ baseUrl, token, children }: PBProviderProps) {
       try {
         await pb.ensureAuth();
         if (!isActive) return;
-        setIsReady(true);
+        const valid = !!pb.sdk.authStore.token && !!pb.sdk.authStore.record && pb.sdk.authStore.isValid;
+        if (valid) {
+          setIsReady(true);
+        } else {
+          onAuthInvalid?.();
+          setIsReady(false);
+        }
       } catch (e) {
         if (!isActive) return;
         setError(e);
+        onAuthInvalid?.();
         setIsReady(false);
       }
     })();

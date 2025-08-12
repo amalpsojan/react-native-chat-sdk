@@ -63,6 +63,38 @@ export async function sendText(
   }
 }
 
+/** Send any message type supported by the Chat SDK. */
+export async function sendMessage(
+  pb: PBClient,
+  roomId: string,
+  input: Pick<Message, 'type' | 'content'> & {
+    status?: Message['status'];
+    editedAtMs?: number;
+    refMessageId?: string;
+    refType?: string;
+    refContent?: any;
+  }
+): Promise<void> {
+  await pb.ensureAuth();
+  const user = pb.sdk.authStore.record as any;
+  const userId = user?.id;
+  if (!userId) throw new Error('Not authenticated');
+  const payload: any = {
+    roomId,
+    from: userId,
+    type: input.type,
+    content: input.content,
+    createdAtMs: Date.now(),
+    status: input.status ?? 'sent',
+  };
+  if (input.editedAtMs) payload.editedAtMs = input.editedAtMs;
+  if (input.refMessageId) payload.refMessageId = input.refMessageId;
+  if (input.refType) payload.refType = input.refType;
+  if (typeof input.refContent !== 'undefined') payload.refContent = input.refContent;
+  console.log('[chat-backend] send payload', payload);
+  await pb.sdk.collection('messages').create(payload);
+}
+
 export async function subscribeMessages(
   pb: PBClient,
   roomId: string,

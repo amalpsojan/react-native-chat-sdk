@@ -1,6 +1,6 @@
 import type { Message } from '@/components/chat-sdk/types';
 import { useEffect, useMemo, useState } from 'react';
-import { loadHistory, sendText as sendTextSdk, subscribeMessages } from './messages';
+import { loadHistory, sendMessage as sendMessageSdk, subscribeMessages } from './messages';
 import { usePB } from './PBContext';
 import { listRooms, type Room } from './rooms';
 
@@ -26,7 +26,13 @@ type UseChatBackendResult = {
   messagesLoading: boolean;
   messagesError: unknown | null;
   refreshMessages: () => Promise<void>;
-  sendText: (text: string) => Promise<void>;
+  sendMessage: (input: Pick<Message, 'type' | 'content'> & {
+    status?: Message['status'];
+    editedAtMs?: number;
+    refMessageId?: string;
+    refType?: string;
+    refContent?: any;
+  }) => Promise<void>;
 };
 
 export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBackendResult {
@@ -130,12 +136,17 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
     };
   }, [isReady, pb, roomId, refreshMessages]);
 
-  const sendText = useMemo(
+  const sendMessage = useMemo(
     () =>
-      async (text: string) => {
+      async (input: Pick<Message, 'type' | 'content'> & {
+        status?: Message['status'];
+        editedAtMs?: number;
+        refMessageId?: string;
+        refType?: string;
+        refContent?: any;
+      }) => {
         if (!roomId) return;
-        console.log('[chat-backend] send text', { roomId, text });
-        await sendTextSdk(pb, roomId, text);
+        await sendMessageSdk(pb, roomId, input);
       },
     [pb, roomId]
   );
@@ -152,7 +163,7 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
     messagesLoading,
     messagesError,
     refreshMessages,
-    sendText,
+    sendMessage,
   };
 }
 

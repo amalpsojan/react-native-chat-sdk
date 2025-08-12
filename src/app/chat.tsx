@@ -10,15 +10,16 @@ export default function ChatScreen() {
   const insets = useSafeAreaInsets();
   const { roomId } = useLocalSearchParams<{ roomId?: string }>();
 
-  const { messages, currentUserId, sendText, isReady } = useChatBackend({
+  const { messages, currentUserId, sendMessage, isReady } = useChatBackend({
     roomId: (roomId as string) || "",
     historyLimit: 50,
   });
 
   const handleSend = async (message: Partial<Message>) => {
-    const text = (message as any)?.content?.text || (message as any)?.text || "";
-    if (!text) return;
-    await sendText(text);
+    const type = (message as any)?.type || 'text';
+    const content = (message as any)?.content || { text: (message as any)?.text || '' };
+    if (type === 'text' && !content.text) return;
+    await sendMessage({ type: type as any, content });
   };
 
   if (!roomId || !isReady) {
