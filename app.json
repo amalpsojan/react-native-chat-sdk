@@ -43,10 +43,14 @@
           "microphonePermission": "Allow $(PRODUCT_NAME) to access your microphone."
         }
       ],
-      "./plugins/with-watermelondb-simdjson.js"
+      "./plugins/with-watermelondb-simdjson.js",
+      "expo-secure-store"
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "EXPO_PUBLIC_PB_URL": "http://127.0.0.1:8090"
     }
   }
 }
