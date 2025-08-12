@@ -2,7 +2,7 @@ import { ClientConfig } from "@/config";
 import axios from "axios";
 
 export const RestClient = axios.create({
-  baseURL: ClientConfig.baseUrl + "/api",
+  baseURL: ClientConfig.apiBaseUrl,
   headers: { "Content-Type": "application/json" },
 });
 

@@ -12,7 +12,7 @@ type ListResponse<T> = {
 export async function listRooms(pb: PBClient, page = 1, perPage = 50): Promise<Room[]> {
   await pb.ensureAuth();
   const { items } = await pb.sdk.collection('rooms').getList<Room>(page, perPage, {
-    query: { sort: 'title' },
+    sort: 'title',
   }) as unknown as ListResponse<Room>;
   return items;
 }

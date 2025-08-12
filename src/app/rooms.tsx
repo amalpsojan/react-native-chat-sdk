@@ -14,7 +14,7 @@ export default function RoomsScreen() {
   const router = useRouter();
   const navigation = useNavigation();
   const [loading, setLoading] = useState(true);
-  const { rooms, roomsLoading, refreshRooms } = useChatBackend();
+  const { rooms, roomsLoading } = useChatBackend();
   const token = useAuthStore((s) => s.token);
 
   useEffect(() => {
@@ -25,7 +25,6 @@ export default function RoomsScreen() {
           router.replace("/prelogin");
           return;
         }
-        await refreshRooms();
       } catch (e: any) {
         Alert.alert("Error", e?.message || "Failed to load rooms");
       } finally {
@@ -43,6 +42,8 @@ export default function RoomsScreen() {
       ),
     });
   }, [navigation, router]);
+
+  // No manual refresh; realtime will update the list automatically
 
   const onSelect = (room: Room) => {
     router.push({ pathname: "/chat", params: { roomId: room.id } });

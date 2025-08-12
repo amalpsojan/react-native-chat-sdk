@@ -19,13 +19,11 @@ type UseChatBackendResult = {
   rooms: Room[];
   roomsLoading: boolean;
   roomsError: unknown | null;
-  refreshRooms: () => Promise<void>;
 
   // messages
   messages: Message[];
   messagesLoading: boolean;
   messagesError: unknown | null;
-  refreshMessages: () => Promise<void>;
   sendMessage: (input: Pick<Message, 'type' | 'content'> & {
     status?: Message['status'];
     editedAtMs?: number;
@@ -58,72 +56,71 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
     setCurrentUserId(id);
   }, [isReady, pb]);
 
-  // Rooms: initial load + realtime updates
-  const refreshRooms = useMemo(
-    () =>
-      async () => {
-        if (!isReady) return;
-        try {
-          setRoomsError(null);
-          setRoomsLoading(true);
-          const list = await listRooms(pb);
-          console.log('[chat-backend] rooms loaded', list.length);
-          setRooms(list);
-        } catch (e) {
-          console.error('[chat-backend] rooms error', e);
-          setRoomsError(e);
-        } finally {
-          setRoomsLoading(false);
-        }
-      },
-    [isReady, pb]
-  );
-
   useEffect(() => {
     if (!isReady) return;
-    let unsub: (() => Promise<void>) | null = null;
-    refreshRooms();
     (async () => {
-      // subscribe to rooms collection for simple invalidation
-      unsub = await pb.sdk.collection('rooms').subscribe('*', (e: any) => {
-        console.log('[chat-backend] rooms event', e?.action, e?.record?.id);
-        if (e?.action === 'create' || e?.action === 'update' || e?.action === 'delete') {
-          refreshRooms();
-        }
+      try {
+        setRoomsError(null);
+        setRoomsLoading(true);
+        const list = await listRooms(pb);
+        console.log('[chat-backend] rooms loaded', list.length);
+        setRooms(list);
+      } catch (e) {
+        console.error('[chat-backend] rooms error', e);
+        setRoomsError(e);
+      } finally {
+        setRoomsLoading(false);
+      }
+    })();
+    (async () => {
+      // Subscribe and update local state directly for realtime UX
+      await pb.sdk.collection('rooms').subscribe('*', (e: any) => {
+        const rec = e?.record as Room | undefined;
+        console.log('[chat-backend] rooms event', e?.action, rec?.id);
+        if (!rec) return;
+        setRooms((prev) => {
+          if (e.action === 'create') {
+            if (prev.some((r) => r.id === rec.id)) return prev;
+            return [rec, ...prev];
+          }
+          if (e.action === 'update') {
+            return prev.map((r) => (r.id === rec.id ? { ...r, ...rec } : r));
+          }
+          if (e.action === 'delete') {
+            return prev.filter((r) => r.id !== rec.id);
+          }
+          return prev;
+        });
       });
     })();
     return () => {
-      if (unsub) unsub().catch(() => {});
+      try {
+        pb.sdk.collection('rooms').unsubscribe('*');
+      } catch {}
     };
-  }, [isReady, pb, refreshRooms]);
+  }, [isReady, pb]);
 
-  // Messages: load and subscribe when roomId provided
-  const refreshMessages = useMemo(
-    () =>
-      async () => {
-        if (!isReady || !roomId) return;
-        try {
-          setMessagesError(null);
-          setMessagesLoading(true);
-          console.log('[chat-backend] load history', { roomId, historyLimit });
-          const hist = await loadHistory(pb, roomId, historyLimit);
-          console.log('[chat-backend] history loaded', hist.length);
-          // Invert order so newest appears first in the list
-          setMessages([...hist].reverse());
-        } catch (e) {
-          console.error('[chat-backend] messages error', e);
-          setMessagesError(e);
-        } finally {
-          setMessagesLoading(false);
-        }
-      },
-    [isReady, pb, roomId, historyLimit]
-  );
+  // (removed) AppState foreground refresh; not needed now that realtime is working reliably
 
   useEffect(() => {
     if (!isReady || !roomId) return;
     let unsub: (() => Promise<void>) | null = null;
-    refreshMessages();
+    (async () => {
+      try {
+        setMessagesError(null);
+        setMessagesLoading(true);
+        console.log('[chat-backend] load history', { roomId, historyLimit });
+        const hist = await loadHistory(pb, roomId, historyLimit);
+        console.log('[chat-backend] history loaded', hist.length);
+        // Invert order so newest appears first in the list
+        setMessages([...hist].reverse());
+      } catch (e) {
+        console.error('[chat-backend] messages error', e);
+        setMessagesError(e);
+      } finally {
+        setMessagesLoading(false);
+      }
+    })();
     (async () => {
       unsub = await subscribeMessages(pb, roomId, (m) => {
         console.log('[chat-backend] message create', m.id);
@@ -134,7 +131,7 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
     return () => {
       if (unsub) unsub().catch(() => {});
     };
-  }, [isReady, pb, roomId, refreshMessages]);
+  }, [isReady, pb, roomId, historyLimit]);
 
   const sendMessage = useMemo(
     () =>
@@ -158,11 +155,9 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
     rooms,
     roomsLoading,
     roomsError,
-    refreshRooms,
     messages,
     messagesLoading,
     messagesError,
-    refreshMessages,
     sendMessage,
   };
 }

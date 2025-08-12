@@ -15,7 +15,7 @@ export default function RootLayout() {
 
   return (
     <PBProvider
-      baseUrl={ClientConfig.baseUrl + "/pb"}
+      baseUrl={ClientConfig.pbBaseUrl}
       token={token}
       onAuthInvalid={() => {
         clear();
