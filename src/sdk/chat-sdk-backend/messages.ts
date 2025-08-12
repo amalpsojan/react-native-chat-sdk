@@ -19,7 +19,7 @@ export async function loadHistory(
   }) as unknown as ListResponse<any>;
 
   const user = pb.sdk.authStore.record as any;
-  const userId = user?.username || user?.email || user?.id;
+  const userId = user?.id;
   return res.items.map((r: any) => ({
     id: r.id,
     from: r.from,
@@ -39,15 +39,28 @@ export async function sendText(
 ): Promise<void> {
   await pb.ensureAuth();
   const user = pb.sdk.authStore.record as any;
-  const userId = user?.username || user?.email || user?.id;
-  await pb.sdk.collection('messages').create({
+  const userId = user?.id;
+  if (!userId) {
+    console.error('[chat-backend] missing auth record; abort send');
+    throw new Error('Not authenticated');
+  }
+  const payload = {
     roomId,
     from: userId,
     type: 'text',
     content: { text },
     createdAtMs: Date.now(),
     status: 'sent',
-  });
+  } as any;
+  console.log('[chat-backend] send payload', payload);
+  try {
+    await pb.sdk.collection('messages').create(payload);
+  } catch (e: any) {
+    const details = (e?.data?.data || e?.response?.data || e) as any;
+    const msg = e?.data?.message || e?.message || 'send failed';
+    console.error('[chat-backend] send error', msg, details);
+    throw e;
+  }
 }
 
 export async function subscribeMessages(
@@ -57,7 +70,7 @@ export async function subscribeMessages(
 ): Promise<() => Promise<void>> {
   await pb.ensureAuth();
   const user = pb.sdk.authStore.record as any;
-  const userId = user?.username || user?.email || user?.id;
+  const userId = user?.id;
   return pb.sdk.collection('messages').subscribe('*', (e: any) => {
     const rec = e?.record;
     if (!rec || rec.roomId !== roomId) return;

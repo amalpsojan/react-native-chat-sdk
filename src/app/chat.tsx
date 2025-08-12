@@ -1,23 +1,16 @@
 import { ChatSDK } from "@/components";
 import type { Message } from "@/components/chat-sdk/types";
 import { useChatBackend } from "@/sdk/chat-sdk-backend";
-import { useAuthStore } from "@/state/auth";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import React, { useEffect } from "react";
+import { useLocalSearchParams } from "expo-router";
+import React from "react";
 import { ActivityIndicator, View } from "react-native";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 export default function ChatScreen() {
   const insets = useSafeAreaInsets();
-  const router = useRouter();
   const { roomId } = useLocalSearchParams<{ roomId?: string }>();
-  const token = useAuthStore((s) => s.token);
 
-  useEffect(() => {
-    if (!token) router.replace('/login');
-  }, [token, router]);
-
-  const { messages, currentUserId, sendText } = useChatBackend({
+  const { messages, currentUserId, sendText, isReady } = useChatBackend({
     roomId: (roomId as string) || "",
     historyLimit: 50,
   });
@@ -28,7 +21,7 @@ export default function ChatScreen() {
     await sendText(text);
   };
 
-  if (!roomId || !token) {
+  if (!roomId || !isReady) {
     return (
       <View style={{ flex: 1, justifyContent: "center", alignItems: "center", paddingTop: insets.top }}>
         <ActivityIndicator />

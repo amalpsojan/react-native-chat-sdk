@@ -8,6 +8,7 @@ import RNEventSource from 'react-native-sse';
  */
 export class PBClient {
   private pb: PocketBase;
+  private refreshing?: Promise<void>;
 
   constructor(baseUrl: string) {
     if (typeof (global as any).EventSource === 'undefined') {
@@ -27,12 +28,37 @@ export class PBClient {
 
   /** Best-effort token validation/refresh. Safe to call before protected ops. */
   async ensureAuth(): Promise<void> {
-    if (!this.pb.authStore.token) return;
+    if (!this.pb.authStore.token) {
+      console.warn('[pb-client] no token in authStore');
+      return;
+    }
+    // If record is missing, force a refresh to populate it
+    if (!this.pb.authStore.record) {
+      try {
+        await this.pb.collection('users').authRefresh();
+        console.log('[pb-client] token refresh (populate record) OK');
+      } catch (e) {
+        console.error('[pb-client] token refresh failed (populate record)', e);
+      }
+      // Continue to validity check below
+    }
+    // Skip if token still valid and record present
+    if (this.pb.authStore.isValid && this.pb.authStore.record) return;
+    // Coalesce concurrent refresh calls
+    if (this.refreshing) return this.refreshing;
+    this.refreshing = (async () => {
+      try {
+        await this.pb.collection('users').authRefresh();
+        console.log('[pb-client] token refresh OK');
+      } catch (e) {
+        console.error('[pb-client] token refresh failed', e);
+        // Do NOT clear token here; allow callers to retry or handle 401s gracefully
+      }
+    })();
     try {
-      await this.pb.collection('users').authRefresh();
-    } catch {
-      // token invalid/expired; clear so callers can react
-      this.pb.authStore.clear();
+      await this.refreshing;
+    } finally {
+      this.refreshing = undefined;
     }
   }
 

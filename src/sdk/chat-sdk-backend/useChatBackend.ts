@@ -47,7 +47,8 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
   useEffect(() => {
     if (!isReady) return;
     const user = pb.sdk.authStore.record as any;
-    const id = user?.username || user?.email || user?.id || '';
+    const id = user?.id || '';
+    console.log('[chat-backend] user', id);
     setCurrentUserId(id);
   }, [isReady, pb]);
 
@@ -60,8 +61,10 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
           setRoomsError(null);
           setRoomsLoading(true);
           const list = await listRooms(pb);
+          console.log('[chat-backend] rooms loaded', list.length);
           setRooms(list);
         } catch (e) {
+          console.error('[chat-backend] rooms error', e);
           setRoomsError(e);
         } finally {
           setRoomsLoading(false);
@@ -77,6 +80,7 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
     (async () => {
       // subscribe to rooms collection for simple invalidation
       unsub = await pb.sdk.collection('rooms').subscribe('*', (e: any) => {
+        console.log('[chat-backend] rooms event', e?.action, e?.record?.id);
         if (e?.action === 'create' || e?.action === 'update' || e?.action === 'delete') {
           refreshRooms();
         }
@@ -95,9 +99,13 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
         try {
           setMessagesError(null);
           setMessagesLoading(true);
+          console.log('[chat-backend] load history', { roomId, historyLimit });
           const hist = await loadHistory(pb, roomId, historyLimit);
-          setMessages(hist);
+          console.log('[chat-backend] history loaded', hist.length);
+          // Invert order so newest appears first in the list
+          setMessages([...hist].reverse());
         } catch (e) {
+          console.error('[chat-backend] messages error', e);
           setMessagesError(e);
         } finally {
           setMessagesLoading(false);
@@ -112,7 +120,9 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
     refreshMessages();
     (async () => {
       unsub = await subscribeMessages(pb, roomId, (m) => {
-        setMessages((prev) => [...prev, m]);
+        console.log('[chat-backend] message create', m.id);
+        // Prepend new message when using inverted order
+        setMessages((prev) => [m, ...prev]);
       });
     })();
     return () => {
@@ -124,6 +134,7 @@ export function useChatBackend(options: UseChatBackendOptions = {}): UseChatBack
     () =>
       async (text: string) => {
         if (!roomId) return;
+        console.log('[chat-backend] send text', { roomId, text });
         await sendTextSdk(pb, roomId, text);
       },
     [pb, roomId]
