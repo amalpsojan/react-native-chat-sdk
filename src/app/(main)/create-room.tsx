@@ -16,7 +16,7 @@ export default function CreateRoomScreen() {
     try {
       const room = await createRoom(title);
       router.replace({
-        pathname: "/chat",
+        pathname: "/(main)/chat",
         params: { roomId: room.room.id },
       });
     } catch (e: any) {

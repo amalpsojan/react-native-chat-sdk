@@ -36,7 +36,7 @@ export default function RoomsScreen() {
   useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <Pressable onPress={() => router.push("/create-room")} style={{ paddingHorizontal: 12, paddingVertical: 6 }}>
+        <Pressable onPress={() => router.push("/(main)/create-room")} style={{ paddingHorizontal: 12, paddingVertical: 6 }}>
           <Text style={{ color: "#007AFF", fontWeight: "600" }}>+ Create</Text>
         </Pressable>
       ),
@@ -46,7 +46,7 @@ export default function RoomsScreen() {
   // No manual refresh; realtime will update the list automatically
 
   const onSelect = (room: Room) => {
-    router.push({ pathname: "/chat", params: { roomId: room.id } });
+    router.push({ pathname: "/(main)/chat", params: { roomId: room.id } });
   };
 
   if (loading) {
