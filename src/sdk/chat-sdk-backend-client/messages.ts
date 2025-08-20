@@ -1,4 +1,4 @@
-import type { Message } from "@/sdk/chat-sdk/types";
+import type { Message } from "@chat-sdk-ui/types";
 import type { PBClient } from "./pbClient";
 
 type ListResponse<T> = {

@@ -1,7 +1,7 @@
 import { SyncService } from "@/data/sync/SyncService";
 import { database } from "@/data/watermelon/database";
 import WMMessage from "@/data/watermelon/models/Message";
-import type { Message as ChatMessage, MessageStatus } from "@/sdk/chat-sdk/types";
+import type { Message as ChatMessage, MessageStatus } from "@chat-sdk-ui/types";
 import { Q } from "@nozbe/watermelondb";
 import type { MessageRepository } from "./MessageRepository";
 

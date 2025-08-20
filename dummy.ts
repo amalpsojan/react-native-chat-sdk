@@ -1,4 +1,4 @@
-import { Message, MessageType } from "@/sdk/chat-sdk/types";
+import { Message, MessageType } from "@chat-sdk-ui/types";
 
 // Helper function to create dates for different days
 const createDate = (daysAgo: number, hours: number = 12, minutes: number = 0) => {

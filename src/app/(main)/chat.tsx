@@ -1,6 +1,6 @@
-import { ChatSDK } from "@/components";
 import { useChatBackend } from "@/sdk/chat-sdk-backend-client";
-import type { Message } from "@/sdk/chat-sdk/types";
+import { default as ChatSDK } from "@chat-sdk-ui/index";
+import type { Message } from "@chat-sdk-ui/types";
 import { useLocalSearchParams } from "expo-router";
 import React from "react";
 import { ActivityIndicator, View } from "react-native";

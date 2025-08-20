@@ -1,4 +1,4 @@
-import type { Message, MessageStatus } from "@/sdk/chat-sdk/types";
+import type { Message, MessageStatus } from "@chat-sdk-ui/types";
 
 export interface MessageRepository {
   getMessages(roomId: string): Promise<Message[]>;
