@@ -25,7 +25,7 @@ export default function LoginScreen() {
       const token = res?.token;
       if (!token) throw new Error("No token received");
       setToken(token);
-      router.replace("/rooms");
+      router.replace("/(main)/(tabs)/rooms");
     } catch (e: any) {
       Alert.alert("Login failed", e?.message || "Unknown error");
     } finally {

@@ -1,2 +1,2 @@
-export * from "./chat-sdk";
-export { default as ChatSDK } from "./chat-sdk";
+export * from "../sdk/chat-sdk";
+export { default as ChatSDK } from "../sdk/chat-sdk";

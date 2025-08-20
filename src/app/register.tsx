@@ -23,7 +23,7 @@ export default function RegisterScreen() {
       const token = res?.token;
       if (!token) throw new Error('No token');
       setToken(token);
-      router.replace('/rooms');
+      router.replace('/(main)/(tabs)/rooms');
     } catch (e: any) {
       Alert.alert('Register failed', e?.message || 'Unknown error');
     } finally {

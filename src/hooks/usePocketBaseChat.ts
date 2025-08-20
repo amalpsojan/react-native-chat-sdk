@@ -1,4 +1,4 @@
-import type { Message } from "@/components/chat-sdk/types";
+import type { Message } from "@/sdk/chat-sdk/types";
 import PocketBase from "pocketbase";
 import { useEffect, useMemo, useRef, useState } from "react";
 import RNEventSource from "react-native-sse";

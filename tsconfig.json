@@ -3,15 +3,11 @@
   "compilerOptions": {
     "strict": true,
     "paths": {
-      "@/*": [
-        "./src/*"
-      ]
+      "@/*": ["./src/*"],
+      "@chat-sdk-ui/*": ["./src/sdk/chat-sdk/*"],
+      "@chat-sdk-backend-client/*": ["./src/sdk/chat-sdk-backend-client/*"],
+      "@chat-sdk-offline-client/*": ["./src/sdk/chat-sdk-offline/*"]
     }
   },
-  "include": [
-    "**/*.ts",
-    "**/*.tsx",
-    ".expo/types/**/*.ts",
-    "expo-env.d.ts"
-  ]
+  "include": ["**/*.ts", "**/*.tsx", ".expo/types/**/*.ts", "expo-env.d.ts"]
 }

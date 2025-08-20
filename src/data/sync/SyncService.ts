@@ -1,6 +1,6 @@
-import type { Message } from "@/components/chat-sdk/types";
 import { database } from "@/data/watermelon/database";
 import WMMessage from "@/data/watermelon/models/Message";
+import type { Message } from "@/sdk/chat-sdk/types";
 import { Q } from "@nozbe/watermelondb";
 import PocketBase from "pocketbase";
 

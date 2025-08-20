@@ -18,10 +18,9 @@ export default function MainLayout() {
       }}
     >
       <Stack>
-        <Stack.Screen name="index" options={{ headerShown: false }} />
-        <Stack.Screen name="rooms" options={{ title: "Rooms" }} />
+        <Stack.Screen name="index" redirect options={{ headerShown: false }} />
         <Stack.Screen name="create-room" options={{ title: "Create Room" }} />
-        <Stack.Screen name="chat" options={{ title: "Chat" }} />
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
       </Stack>
     </PBProvider>
   );

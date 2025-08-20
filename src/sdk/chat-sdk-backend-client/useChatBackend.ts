@@ -1,4 +1,4 @@
-import type { Message } from '@/components/chat-sdk/types';
+import type { Message } from '@/sdk/chat-sdk/types';
 import { useEffect, useMemo, useState } from 'react';
 import { loadHistory, sendMessage as sendMessageSdk, subscribeMessages } from './messages';
 import { usePB } from './PBContext';
